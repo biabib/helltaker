@@ -2,7 +2,7 @@
 
 
 AnimatedCharacter::AnimatedCharacter(const std::vector<std::string> &AnimationPaths)  {
-    m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, true, 125, false, 0);
+    m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, true, 60, false, 0);
 
 
 }

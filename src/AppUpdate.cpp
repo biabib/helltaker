@@ -26,7 +26,7 @@ void App::Update() {
     double y = m_Hero->GetPosition().y;
     if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
         m_Hero->SetPosition({x, y + 20});
-
+        _sleep(10);
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)) {
         m_Hero->SetPosition({x, y - 20});
