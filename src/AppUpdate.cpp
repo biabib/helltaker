@@ -22,6 +22,33 @@ void App::Update() {
         }
     }
     m_EnterDown = Util::Input::IsKeyPressed(Util::Keycode::RETURN);
+    double x = m_Hero->GetPosition().x;
+    double y = m_Hero->GetPosition().y;
+    if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
+        m_Hero->SetPosition({x, y + 20});
+
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)) {
+        m_Hero->SetPosition({x, y - 20});
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
+        m_Hero->SetPosition({x + 20, y});
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)) {
+        m_Hero->SetPosition({x - 20, y});
+    }
+//    if (m_Giraffe->IfCollides(m_Chest)) {
+//        m_Chest->SetVisible(false);
+//    }
+//
+//    if (m_Phase == Phase::OPEN_THE_DOORS) {
+//        for(int i =0;  i<3;i++) {
+//            if (m_Giraffe->IfCollides(m_Doors[i])) {
+//                if (m_Doors[i]->GetImagePath() != "/Image/Character/door_open.png")
+//                    m_Doors[i]->SetImage(GA_RESOURCE_DIR"/Image/Character/door_open.png");
+//            }
+//        }
+//    }
 
     m_Root.Update();
 }

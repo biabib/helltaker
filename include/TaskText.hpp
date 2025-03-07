@@ -7,17 +7,17 @@
 
 class TaskText : public Util::GameObject {
 public:
-    TaskText() : GameObject(
-            std::make_unique<Util::Text>(GA_RESOURCE_DIR"/Font/Inkfree.ttf", 20,
-                                         append_string_views(s_PhaseTasks[0], s_Validation),
-                                         Util::Color::FromName(Util::Colors::WHITE)),
-            100) {
-        m_Transform.translation = {0.0F, -270.F};
-    }
+//    TaskText() : GameObject(
+//            std::make_unique<Util::Text>(GA_RESOURCE_DIR"/Font/Inkfree.ttf", 20,
+//                                         append_string_views(s_PhaseTasks[0], s_Validation),
+//                                         Util::Color::FromName(Util::Colors::WHITE)),
+//            100) {
+//        m_Transform.translation = {0.0F, -270.F};
+//    }
 
     void NextPhase(const int phase) {
-        auto temp = std::dynamic_pointer_cast<Util::Text>(m_Drawable);
-        temp->SetText(append_string_views(s_PhaseTasks[phase], s_Validation));
+//        auto temp = std::dynamic_pointer_cast<Util::Text>(m_Drawable);
+//        temp->SetText(append_string_views(s_PhaseTasks[phase], s_Validation));
     }
 
 private:
@@ -25,15 +25,15 @@ private:
         return std::string(sv1) + "\n" + std::string(sv2);
     }
 
-    static constexpr std::string_view s_PhaseTasks[6] = {
-            "Replace the image of m_giraffe with giraffe.png in Resources!",
-            "Make the giraffe move into the red area using the keyboard!",
-            "Make the chest disappear when the giraffe touches it!",
-            "Write a program to give your bee friend an animation!",
-            "Write a program to open the door when your character touches it!",
-            "Design a program to countdown, stop animation after OK display"
-    };
-    static constexpr std::string_view s_Validation = "Press Enter to validate";
+//    static constexpr std::string_view s_PhaseTasks[6] = {
+//            "Replace the image of m_giraffe with giraffe.png in Resources!",
+//            "Make the giraffe move into the red area using the keyboard!",
+//            "Make the chest disappear when the giraffe touches it!",
+//            "Write a program to give your bee friend an animation!",
+//            "Write a program to open the door when your character touches it!",
+//            "Design a program to countdown, stop animation after OK display"
+//    };
+//    static constexpr std::string_view s_Validation = "Press Enter to validate";
 };
 
 
