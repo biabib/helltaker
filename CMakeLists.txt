@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(GiraffeAdventure)
+project(Helltaker)
 
 set(CMAKE_CXX_STANDARD 17)
 
