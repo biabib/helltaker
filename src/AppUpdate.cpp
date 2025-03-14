@@ -24,18 +24,21 @@ void App::Update() {
     m_EnterDown = Util::Input::IsKeyPressed(Util::Keycode::RETURN);
     double x = m_Hero->GetPosition().x;
     double y = m_Hero->GetPosition().y;
-    if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
-        m_Hero->SetPosition({x, y + 20});
+    if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
+        m_Hero->SetPosition({x, y + 50});
         _sleep(10);
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)) {
-        m_Hero->SetPosition({x, y - 20});
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN) || Util::Input::IsKeyPressed(Util::Keycode::S)) {
+        m_Hero->SetPosition({x, y - 50});
+        _sleep(10);
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
-        m_Hero->SetPosition({x + 20, y});
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT) || Util::Input::IsKeyPressed(Util::Keycode::D)) {
+        m_Hero->SetPosition({x + 50, y});
+        _sleep(10);
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)) {
-        m_Hero->SetPosition({x - 20, y});
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT) || Util::Input::IsKeyPressed(Util::Keycode::A)) {
+        m_Hero->SetPosition({x - 50, y});
+        _sleep(10);
     }
 //    if (m_Giraffe->IfCollides(m_Chest)) {
 //        m_Chest->SetVisible(false);
