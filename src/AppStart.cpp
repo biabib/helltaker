@@ -20,8 +20,8 @@ void App::Start() {
     // 初始化角色
     std::vector<std::string> HeroImages;
     HeroImages.reserve(12);
-    for (int i = 0; i < 12; ++i) {
-        HeroImages.emplace_back(HT_RESOURCE_DIR "/Image/Character/hero00" + std::to_string(i + 22) + ".png");
+    for (int i = 1; i < 12; ++i) {
+        HeroImages.emplace_back(HT_RESOURCE_DIR "/Image/Hero/Standby/hero" + std::to_string(i) + ".png");
     }
 
     m_Hero = std::make_shared<AnimatedCharacter>(HeroImages);
