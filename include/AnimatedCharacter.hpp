@@ -6,6 +6,7 @@
 
 #include "Util/Animation.hpp"
 #include "Util/GameObject.hpp"
+#include "Map.hpp"
 
 
 class AnimatedCharacter : public Util::GameObject {
@@ -40,20 +41,12 @@ public:
     [[nodiscard]] const glm::vec2& GetPosition() const { return m_Transform.translation; }
 
     [[nodiscard]] bool GetVisibility() const { return m_Visible; }
-
+    void Move(int dx, int dy, int maxCols, int maxRows);
 
     void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 
     // TODO: Implement the collision detection
-    [[nodiscard]] bool IfCollides(const std::shared_ptr<AnimatedCharacter>& other) const {
-        auto thisPosition = this->GetPosition();
-        auto thisZIndex = this->GetZIndex();
-        auto otherPosition = other->GetPosition();
-        auto otherZIndex = other->GetZIndex();
 
-        return (thisPosition.x + thisZIndex >= otherPosition.x && thisPosition.x - thisZIndex <= otherPosition.x) &&
-               (thisPosition.y + thisZIndex >= otherPosition.y && thisPosition.y - thisZIndex <= otherPosition.y);
-    }
 
     // TODO: Add and implement more methods and properties as needed to finish Giraffe Adventure.
 

@@ -22,24 +22,28 @@ void App::Update() {
         }
     }
     m_EnterDown = Util::Input::IsKeyPressed(Util::Keycode::RETURN);
-    double x = m_Hero->GetPosition().x;
-    double y = m_Hero->GetPosition().y;
-    if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
-        m_Hero->SetPosition({x, y + 50});
-        _sleep(10);
+    Core::Matrices data;
+
+    // 繪製地圖格子
+    for (auto& row : m_grid) {
+        for (auto& tile : row) {
+            tile.draw(data);
+        }
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN) || Util::Input::IsKeyPressed(Util::Keycode::S)) {
-        m_Hero->SetPosition({x, y - 50});
-        _sleep(10);
+    // 角色移動控制
+    if (Util::Input::IsKeyDown(Util::Keycode::UP) || Util::Input::IsKeyDown(Util::Keycode::W)) {
+        m_Hero->Move(0, 1, 16, 9);
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT) || Util::Input::IsKeyPressed(Util::Keycode::D)) {
-        m_Hero->SetPosition({x + 50, y});
-        _sleep(10);
+    if (Util::Input::IsKeyDown(Util::Keycode::DOWN) || Util::Input::IsKeyDown(Util::Keycode::S)) {
+        m_Hero->Move(0, -1, 16, 9);
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT) || Util::Input::IsKeyPressed(Util::Keycode::A)) {
-        m_Hero->SetPosition({x - 50, y});
-        _sleep(10);
+    if (Util::Input::IsKeyDown(Util::Keycode::LEFT) || Util::Input::IsKeyDown(Util::Keycode::A))  {
+        m_Hero->Move(-1, 0, 16, 9);
     }
+    if (Util::Input::IsKeyDown(Util::Keycode::RIGHT) || Util::Input::IsKeyDown(Util::Keycode::D)) {
+        m_Hero->Move(1, 0, 16, 9);
+    }
+
 //    if (m_Giraffe->IfCollides(m_Chest)) {
 //        m_Chest->SetVisible(false);
 //    }

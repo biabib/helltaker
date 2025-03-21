@@ -5,6 +5,7 @@
 
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
+#include "Map.hpp"
 #include "Util/Text.hpp"
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"
@@ -46,7 +47,7 @@ private:
 
     std::shared_ptr<AnimatedCharacter> m_Hero;
     std::shared_ptr<PhaseResourceManger> m_PRM;
-
+    std::vector<std::vector<Map>> m_grid;
     bool m_EnterDown = false;
 };
 

@@ -1,20 +1,27 @@
-#ifndef MAP_H
-#define MAP_H
-#include <vector>
-#include <string>
+#ifndef MAP_HPP
+#define MAP_HPP
+#include "Util/Image.hpp"
+#include "TextureManager.hpp"
 
 class Map {
 public:
-    Map(int width, int height);  // 建構函數，初始化地圖大小
-    void LoadFromFile(const std::string& filename);  // 從檔案載入地圖
-    void Render();  // 渲染地圖
-    void SetTile(int x, int y, char tile);  // 設定指定座標的地磚
-    char GetTile(int x, int y) const;  // 取得指定座標的地磚
-    void GenerateBorder();  // 生成地圖邊界
+    std::shared_ptr<Util::Image> texture;
+    float x, y;
+    static constexpr float SIZE = 100.0f;
+    glm::mat4 modelMatrix;
 
-private:
-    int m_Width, m_Height;
-    std::vector<std::vector<char>> m_Tiles;  // 使用二維陣列存放地磚
+    Map(float x, float y, const std::string& texturePath)
+            : x(x), y(y) {
+        texture = TextureManager::GetTexture(texturePath);
+
+        // 直接使用傳入的世界座標
+        modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3{x, y, 0.0f});
+        modelMatrix = glm::scale(modelMatrix, glm::vec3{1.0f, -1.0f, 1.0f}); // 修正 y 軸翻轉
+    }
+
+    void draw(Core::Matrices& data) {
+        data.m_Model = modelMatrix;
+        texture->Draw(data);
+    }
 };
-
-#endif // MAP_H
+#endif

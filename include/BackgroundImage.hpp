@@ -8,7 +8,7 @@ class BackgroundImage : public Util::GameObject {
 
 public:
     BackgroundImage() : GameObject(
-            std::make_unique<Util::Image>(GA_RESOURCE_DIR"/Image/Background/chapterBG0001.png"), -5) {
+            std::make_unique<Util::Image>(HT_RESOURCE_DIR"/Image/Background/chapterBG0001.png"), -100) {
     }
 
     void NextPhase(const int phase) {
@@ -18,7 +18,7 @@ public:
 
 private:
     inline std::string ImagePath(const int phase) {
-        return GA_RESOURCE_DIR"/Image/Background/chapterBG000" + std::to_string(phase) + ".png";
+        return HT_RESOURCE_DIR"/Image/Background/chapterBG000" + std::to_string(phase) + ".png";
     }
 };
 
