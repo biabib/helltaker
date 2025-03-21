@@ -1,17 +1,8 @@
 #include "App.hpp"
-
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 
 void App::Update() {
-
-    // TODO: Add your own logics to finish the tasks in README.md
-
-    /*
-     *  Do not touch the code below as they serve the purpose for validating the tasks,
-     *  rendering the frame, and exiting the game.
-    */
-
     if (Util::Input::IsKeyPressed(Util::Keycode::ESCAPE) || Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
@@ -30,32 +21,48 @@ void App::Update() {
             tile.draw(data);
         }
     }
-    // 角色移動控制
+
+    // 角色移動控制（加入碰撞檢查）
     if (Util::Input::IsKeyDown(Util::Keycode::UP) || Util::Input::IsKeyDown(Util::Keycode::W)) {
-        m_Hero->Move(0, 1, 16, 9);
+        if (!CheckCollision(m_Hero->GetPosition() + glm::vec2(0, 100.0f))) {  // 向上移動後的檢查
+            m_Hero->Move(0, 1, 16, 9);
+        }
     }
     if (Util::Input::IsKeyDown(Util::Keycode::DOWN) || Util::Input::IsKeyDown(Util::Keycode::S)) {
-        m_Hero->Move(0, -1, 16, 9);
+        if (!CheckCollision(m_Hero->GetPosition() + glm::vec2(0, -100.0f))) {  // 向下移動後的檢查
+            m_Hero->Move(0, -1, 16, 9);
+        }
     }
     if (Util::Input::IsKeyDown(Util::Keycode::LEFT) || Util::Input::IsKeyDown(Util::Keycode::A))  {
-        m_Hero->Move(-1, 0, 16, 9);
+        if (!CheckCollision(m_Hero->GetPosition() + glm::vec2(-100.0f, 0))) {  // 向左移動後的檢查
+            m_Hero->Move(-1, 0, 16, 9);
+        }
     }
     if (Util::Input::IsKeyDown(Util::Keycode::RIGHT) || Util::Input::IsKeyDown(Util::Keycode::D)) {
-        m_Hero->Move(1, 0, 16, 9);
+        if (!CheckCollision(m_Hero->GetPosition() + glm::vec2(100.0f, 0))) {  // 向右移動後的檢查
+            m_Hero->Move(1, 0, 16, 9);
+        }
     }
 
-//    if (m_Giraffe->IfCollides(m_Chest)) {
-//        m_Chest->SetVisible(false);
-//    }
-//
-//    if (m_Phase == Phase::OPEN_THE_DOORS) {
-//        for(int i =0;  i<3;i++) {
-//            if (m_Giraffe->IfCollides(m_Doors[i])) {
-//                if (m_Doors[i]->GetImagePath() != "/Image/Character/door_open.png")
-//                    m_Doors[i]->SetImage(GA_RESOURCE_DIR"/Image/Character/door_open.png");
-//            }
-//        }
-//    }
-
     m_Root.Update();
+}
+
+// 碰撞檢查函數
+bool App::CheckCollision(const glm::vec2& newPosition) {
+    // 檢查是否超出邊界
+    if (newPosition.x < -800 || newPosition.x > 800 || newPosition.y < -450 || newPosition.y > 450) {
+        return true;
+    }
+
+    // 檢查地圖格子是否為障礙物
+    for (auto& row : m_grid) {
+        for (auto& tile : row) {
+            if (tile.isObstacle() && glm::abs(newPosition.x - tile.getPosition().x) < 50.0f &&
+                glm::abs(newPosition.y - tile.getPosition().y) < 50.0f) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

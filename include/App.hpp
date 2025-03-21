@@ -49,6 +49,7 @@ private:
     std::shared_ptr<PhaseResourceManger> m_PRM;
     std::vector<std::vector<Map>> m_grid;
     bool m_EnterDown = false;
+    bool CheckCollision(const glm::vec2& newPosition);
 };
 
 #endif

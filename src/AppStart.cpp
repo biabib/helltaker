@@ -6,12 +6,16 @@ void App::Start() {
     LOG_TRACE("Start");
     m_grid.clear();
 
-    // 初始化地圖網格
+    // 計算地圖偏移量以置中
+    float offsetX = (1600.0f - (16 * 100.0f)) / 2.0f;
+    float offsetY = (900.0f - (9 * 100.0f)) / 2.0f;
+
+    // 初始化地圖網格，並確保地圖置中
     for (int row = 0; row < 9; ++row) {
         std::vector<Map> tileRow;
         for (int col = 0; col < 16; ++col) {
-            float worldX = (col - 8) * 100.0f;  // 向左偏移 8 格
-            float worldY = (4 - row) * 100.0f;  // 讓 row=0 在最上方，row=8 在最下方
+            float worldX = offsetX + col * 100.0f;  // 計算位置，使地圖置中
+            float worldY = offsetY + row * 100.0f;  // 計算位置，使地圖置中
             tileRow.emplace_back(worldX, worldY, HT_RESOURCE_DIR "/Image/Background/labFloor0002.png");
         }
         m_grid.push_back(tileRow);
