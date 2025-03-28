@@ -48,7 +48,7 @@ private:
 
     std::shared_ptr<AnimatedCharacter> m_Hero;
     std::shared_ptr<PhaseResourceManger> m_PRM;
-    std::vector<std::vector<Map>> m_grid;
+    std::vector<std::vector<std::shared_ptr<Map>>> m_grid;
     std::vector<std::shared_ptr<Box>> m_boxes;
     bool m_EnterDown = false;
     bool CheckCollision(const glm::vec2& newPosition);

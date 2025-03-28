@@ -2,8 +2,9 @@
 #define MAP_HPP
 #include "Util/Image.hpp"
 #include "TextureManager.hpp"
+#include "Util/GameObject.hpp"
 
-class Map {
+class Map :public Util::GameObject{
 public:
     std::shared_ptr<Util::Image> texture;
     float x, y;
@@ -13,9 +14,10 @@ public:
 
     Map(float x, float y, const std::string& texturePath, bool isObstacle = false);
 
-    void draw(Core::Matrices& data);
+
     bool isObstacle() const;  // 返回是否為障礙物
-    glm::vec2 getPosition() const { return glm::vec2(x, y); }  // 取得地圖格子的座標
+    [[nodiscard]] glm::vec2 GetPosition() const { return m_Transform.translation; }
+    void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 };
 
 #endif

@@ -13,14 +13,9 @@ void App::Update() {
         }
     }
     m_EnterDown = Util::Input::IsKeyPressed(Util::Keycode::RETURN);
-    Core::Matrices data;
 
     // 繪製地圖格子
-    for (auto& row : m_grid) {
-        for (auto& tile : row) {
-            tile.draw(data);
-        }
-    }
+
 
     // 角色移動控制（加入碰撞檢查）
     if (Util::Input::IsKeyDown(Util::Keycode::UP) || Util::Input::IsKeyDown(Util::Keycode::W)) {
@@ -67,8 +62,8 @@ bool App::CheckCollision(const glm::vec2& newPosition) {
     // 檢查地圖障礙物
     for (auto& row : m_grid) {
         for (auto& tile : row) {
-            if (tile.isObstacle()) {
-                glm::vec2 tilePos = tile.getPosition();
+            if (tile->isObstacle()) {
+                glm::vec2 tilePos = tile->GetPosition();
 
                 // 障礙物的邊界
                 glm::vec2 tileTopLeft = tilePos - glm::vec2(50.0f, 50.0f);

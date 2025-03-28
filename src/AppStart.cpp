@@ -10,8 +10,8 @@ void App::Start() {
     m_grid.clear();
 
     // 計算地圖偏移量以置中
-    float offsetX = (1600.0f - (16 * 100.0f)) / 2.0f;
-    float offsetY = (900.0f - (9 * 100.0f)) / 2.0f;
+    float offsetX = -(1600.0f / 2.0f)+50;
+    float offsetY = (900.0f / 2.0f)-50;
 
     // 地圖設計（0 = 無地板, 1 = 有地板）
     std::vector<std::vector<int>> mapData = {
@@ -28,13 +28,15 @@ void App::Start() {
 
     // 初始化地圖網格
     for (int row = 0; row < mapData.size(); ++row) {
-        std::vector<Map> tileRow;
+        std::vector<std::shared_ptr<Map>> tileRow;
         for (int col = 0; col < mapData[row].size(); ++col) {
             float worldX = offsetX + col * 100.0f;
-            float worldY = offsetY + row * 100.0f;
+            float worldY = offsetY - row * 100.0f;
 
             if (mapData[row][col] == 1) {
-                tileRow.emplace_back(worldX, worldY, HT_RESOURCE_DIR "/Image/Floor/floor.png");
+                auto floorGrid =  std::make_shared<Map>(worldX, worldY, HT_RESOURCE_DIR "/Image/Floor/floor.png");
+                tileRow.push_back(floorGrid);
+                m_Root.AddChild(floorGrid);
             }
         }
         m_grid.push_back(tileRow);
