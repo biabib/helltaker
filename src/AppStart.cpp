@@ -40,8 +40,18 @@ void App::Start() {
         m_grid.push_back(tileRow);
     }
 
+    auto box1 = std::make_shared<Box>(350, 300, HT_RESOURCE_DIR "/Image/Box/box.png");
+    auto box2 = std::make_shared<Box>(550, 300, HT_RESOURCE_DIR "/Image/Box/box.png");
+    m_boxes.push_back(box1);
+    m_boxes.push_back(box2);
 
-
+    // 加入場景
+    for (auto& box : m_boxes) {
+        LOG_DEBUG(box->GetPosition());
+        box->SetZIndex(5);
+        m_Root.AddChild(box);
+    }
+    LOG_DEBUG("fuck");
     // 初始化角色
     std::vector<std::string> HeroImages;
     HeroImages.reserve(12);
