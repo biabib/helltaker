@@ -1,3 +1,6 @@
+#include <iostream>
+#include <ostream>
+
 #include "App.hpp"
 #include <vector>
 #include "Util/Logger.hpp"
@@ -10,16 +13,34 @@ void App::Start() {
     float offsetX = (1600.0f - (16 * 100.0f)) / 2.0f;
     float offsetY = (900.0f - (9 * 100.0f)) / 2.0f;
 
-    // 初始化地圖網格，並確保地圖置中
-    for (int row = 0; row < 9; ++row) {
+    // 地圖設計（0 = 無地板, 1 = 有地板）
+    std::vector<std::vector<int>> mapData = {
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}
+    };
+
+    // 初始化地圖網格
+    for (int row = 0; row < mapData.size(); ++row) {
         std::vector<Map> tileRow;
-        for (int col = 0; col < 16; ++col) {
-            float worldX = offsetX + col * 100.0f;  // 計算位置，使地圖置中
-            float worldY = offsetY + row * 100.0f;  // 計算位置，使地圖置中
-            tileRow.emplace_back(worldX, worldY, HT_RESOURCE_DIR "/Image/Background/labFloor0002.png");
+        for (int col = 0; col < mapData[row].size(); ++col) {
+            float worldX = offsetX + col * 100.0f;
+            float worldY = offsetY + row * 100.0f;
+
+            if (mapData[row][col] == 1) {
+                tileRow.emplace_back(worldX, worldY, HT_RESOURCE_DIR "/Image/Floor/floor.png");
+            }
         }
         m_grid.push_back(tileRow);
     }
+
+
 
     // 初始化角色
     std::vector<std::string> HeroImages;
@@ -29,7 +50,7 @@ void App::Start() {
     }
 
     m_Hero = std::make_shared<AnimatedCharacter>(HeroImages);
-    m_Hero->SetPosition({-700.0f, -450.0f}); // 初始位置
+    m_Hero->SetPosition({-750.0f, 0.0f}); // 初始位置
     m_Hero->SetZIndex(50);
     m_Hero->SetLooping(true);
     m_Root.AddChild(m_Hero);

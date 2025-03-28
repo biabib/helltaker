@@ -47,22 +47,41 @@ void App::Update() {
     m_Root.Update();
 }
 
-// 碰撞檢查函數
 bool App::CheckCollision(const glm::vec2& newPosition) {
-    // 檢查是否超出邊界
-    if (newPosition.x < -800 || newPosition.x > 800 || newPosition.y < -450 || newPosition.y > 450) {
-        return true;
-    }
+    // 角色的左上角與右下角座標
+    glm::vec2 topLeft = newPosition - glm::vec2(50.0f, 50.0f);
+    glm::vec2 bottomRight = newPosition + glm::vec2(50.0f, 50.0f);
 
-    // 檢查地圖格子是否為障礙物
+    // 修正邊界 (左右修正以 100px 格子為基準)
+    float leftBoundary = -800.0f;
+    float rightBoundary = 800.0f;   // 修正，讓角色正好對齊 16 格
+    float bottomBoundary = -450.0f;
+    float topBoundary = 450.0f;    // 上下仍然沒問題
+
+    // 檢查是否超出地圖邊界
+    if (topLeft.x < leftBoundary || bottomRight.x > rightBoundary ||
+        topLeft.y < bottomBoundary || bottomRight.y > topBoundary) {
+        return true;  // 碰撞邊界
+        }
+
+    // 檢查地圖障礙物
     for (auto& row : m_grid) {
         for (auto& tile : row) {
-            if (tile.isObstacle() && glm::abs(newPosition.x - tile.getPosition().x) < 50.0f &&
-                glm::abs(newPosition.y - tile.getPosition().y) < 50.0f) {
-                return true;
+            if (tile.isObstacle()) {
+                glm::vec2 tilePos = tile.getPosition();
+
+                // 障礙物的邊界
+                glm::vec2 tileTopLeft = tilePos - glm::vec2(50.0f, 50.0f);
+                glm::vec2 tileBottomRight = tilePos + glm::vec2(50.0f, 50.0f);
+
+                // 碰撞檢測（角色是否與障礙物重疊）
+                if (topLeft.x < tileBottomRight.x && bottomRight.x > tileTopLeft.x &&
+                    topLeft.y < tileBottomRight.y && bottomRight.y > tileTopLeft.y) {
+                    return true;  // 碰撞到障礙物
+                    }
             }
         }
     }
 
-    return false;
+    return false;  // 沒有碰撞
 }

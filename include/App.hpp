@@ -50,6 +50,7 @@ private:
     std::vector<std::vector<Map>> m_grid;
     bool m_EnterDown = false;
     bool CheckCollision(const glm::vec2& newPosition);
+    bool CheckPointCollision(const glm::vec2& tilePos, const glm::vec2& point);
 };
 
 #endif
