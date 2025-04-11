@@ -6,7 +6,8 @@
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
 #include "Map.hpp"
-#include "Wall.hpp"
+#include "Enemy.hpp"
+#include "Goal.hpp"
 #include "Util/Text.hpp"
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"
@@ -55,11 +56,17 @@ private:
     std::vector<std::vector<int>> m_mapData;
     std::vector<std::vector<std::shared_ptr<Map>>> m_grid;
     std::vector<std::shared_ptr<Box>> m_boxes;
+    std::vector<std::shared_ptr<Enemy>> m_enemies;
+    std::vector<std::string> m_EnemyStandbyImages;
+    std::vector<std::string> m_EnemyPushedImages;
+    std::vector<std::shared_ptr<Goal>> m_goals;
+    std::vector<std::string> m_GoalImages;
     bool m_EnterDown = false;
     bool CheckCollision(const glm::vec2& newPosition);
     void TryMoveHero(const glm::vec2& direction);
     bool IsWalkable(const glm::vec2& position);
     bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);
+    bool IsEnemyAtPosition(const glm::vec2& position, std::shared_ptr<Enemy>& outEnemy);
 };
 
 #endif

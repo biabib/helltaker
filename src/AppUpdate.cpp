@@ -31,6 +31,13 @@ void App::Update() {
         m_Hero->SetAnimation(m_HeroStandbyImages, true);
     }
 
+    for (auto &enemy: m_enemies) {
+        if (enemy->IfAnimationEnds()) {
+            enemy->SetAnimation(m_EnemyStandbyImages, true);
+        }
+    }
+
+
     m_Root.Update();
 }
 
@@ -83,6 +90,16 @@ bool App::IsBoxAtPosition(const glm::vec2 &position, std::shared_ptr<Box> &outBo
     return false;
 }
 
+bool App::IsEnemyAtPosition(const glm::vec2 &position, std::shared_ptr<Enemy> &outEnemy) {
+    for (auto &enemy: m_enemies) {
+        if (enemy->GetPosition() == position) {
+            outEnemy = enemy;
+            return true;
+        }
+    }
+    return false;
+}
+
 // 輔助函數：判斷某個位置是否可行走（沒有牆壁也沒有邊界）
 bool App::IsWalkable(const glm::vec2 &position) {
     glm::vec2 topLeft = position - glm::vec2(50.0f, 50.0f);
@@ -120,25 +137,61 @@ bool App::IsWalkable(const glm::vec2 &position) {
 
 // 移動角色，處理推箱子邏輯
 void App::TryMoveHero(const glm::vec2 &direction) {
-    glm::vec2 newPosition = m_Hero->GetPosition() + direction * 100.0f;
+    glm::vec2 currentPos = m_Hero->GetPosition();
+    glm::vec2 newPosition = currentPos + direction * 100.0f;
 
+    if (direction.x < 0) m_Hero->m_Transform.scale.x = -1.0f;
+    else if (direction.x > 0) m_Hero->m_Transform.scale.x = 1.0f;
+
+    m_Hero->SetAnimation(m_HeroMoveImages, true);
+
+    // 嘗試推箱子
     std::shared_ptr<Box> box;
     if (IsBoxAtPosition(newPosition, box)) {
-        glm::vec2 boxNewPosition = box->GetPosition() + direction * 100.0f;
+        glm::vec2 boxNewPos = box->GetPosition() + direction * 100.0f;
         std::shared_ptr<Box> blockingBox;
+        std::shared_ptr<Enemy> blockingEnemy;
+
         m_Hero->SetAnimation(m_HeroKickImages, true);
-        if (IsWalkable(boxNewPosition) && !IsBoxAtPosition(boxNewPosition, blockingBox)) {
-            // 可以推動箱子
-            box->SetPosition(boxNewPosition);
-            m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
-            return;
+
+        if (IsWalkable(boxNewPos) &&
+            !IsBoxAtPosition(boxNewPos, blockingBox) &&
+            !IsEnemyAtPosition(boxNewPos, blockingEnemy)) {
+            box->SetPosition(boxNewPos);
         }
-        // 如果不能推，角色也不能移動
-    } else {
-        m_Hero->SetAnimation(m_HeroMoveImages, true);
-        if (IsWalkable(newPosition)) {
-            m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
-            return;
+
+        return;
+    }
+
+    // 嘗試推敵人
+    std::shared_ptr<Enemy> enemy;
+    if (IsEnemyAtPosition(newPosition, enemy)) {
+        glm::vec2 enemyNewPos = enemy->GetPosition() + direction * 100.0f;
+        std::shared_ptr<Box> blockingBox;
+
+        if (direction.x > 0) enemy->m_Transform.scale.x = -1.0f;
+        else if (direction.x < 0) enemy->m_Transform.scale.x = 1.0f;
+
+        std::shared_ptr<Enemy> blockingEnemy;
+
+        m_Hero->SetAnimation(m_HeroKickImages, true);
+        enemy->SetAnimation(m_EnemyPushedImages, true);
+
+        if (!IsBoxAtPosition(enemyNewPos, blockingBox) &&
+            !IsEnemyAtPosition(enemyNewPos, blockingEnemy) &&
+            IsWalkable(enemyNewPos)) {
+            enemy->Move((int) direction.x, (int) direction.y, 16, 9);
+        } else {
+            // 無法移動（撞牆、箱子、敵人）→ 消失
+            m_Root.RemoveChild(enemy);
+            m_enemies.erase(std::remove(m_enemies.begin(), m_enemies.end(), enemy), m_enemies.end());
         }
+
+        return;
+    }
+
+    // 自由移動
+    if (IsWalkable(newPosition)) {
+        m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
     }
 }
