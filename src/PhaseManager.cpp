@@ -8,8 +8,10 @@ PhaseResourceManger::PhaseResourceManger() {
 }
 
 void PhaseResourceManger::NextPhase() {
-//    if (m_Phase == 7) return;
-//    LOG_DEBUG("Passed! Next phase: {}", m_Phase);
-//    m_Background->NextPhase(m_Phase);
-//    m_TaskText->NextPhase(m_Phase++);
+    if (static_cast<int>(m_Phase) >= 6) return;
+
+    m_Phase = static_cast<Phase>(static_cast<int>(m_Phase) + 1);
+
+    m_Background->NextPhase(static_cast<int>(m_Phase));
+    m_TaskText->NextPhase(static_cast<int>(m_Phase));
 }

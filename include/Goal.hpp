@@ -43,6 +43,8 @@ public:
 
     void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 
+    bool isObstacle() const { return true; }
+
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 

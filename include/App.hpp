@@ -12,6 +12,8 @@
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"
 #include "Box.hpp"
+#include "MapStorage.hpp"
+#include "Util/Logger.hpp"
 
 class App {
 public:
@@ -20,7 +22,6 @@ public:
         UPDATE,
         END,
     };
-
     State GetCurrentState() const { return m_CurrentState; }
 
     void Start();
@@ -33,18 +34,11 @@ private:
     void ValidTask();
 
 private:
-    enum class Phase {
-        CHANGE_CHARACTER_IMAGE,
-        ABLE_TO_MOVE,
-        COLLIDE_DETECTION,
-        BEE_ANIMATION,
-        OPEN_THE_DOORS,
-        COUNTDOWN,
-    };
+
 
 
     State m_CurrentState = State::START;
-    Phase m_Phase = Phase::CHANGE_CHARACTER_IMAGE;
+    Phase m_Phase = Phase::Quest1;
 
     Util::Renderer m_Root;
 
@@ -61,12 +55,14 @@ private:
     std::vector<std::string> m_EnemyPushedImages;
     std::vector<std::shared_ptr<Goal>> m_goals;
     std::vector<std::string> m_GoalImages;
+
     bool m_EnterDown = false;
-    bool CheckCollision(const glm::vec2& newPosition);
+    void LoadMapFromData();
     void TryMoveHero(const glm::vec2& direction);
     bool IsWalkable(const glm::vec2& position);
     bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);
     bool IsEnemyAtPosition(const glm::vec2& position, std::shared_ptr<Enemy>& outEnemy);
+    bool IsGoalAtPosition(const glm::vec2 &position);
 };
 
 #endif

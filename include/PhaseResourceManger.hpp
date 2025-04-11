@@ -5,6 +5,7 @@
 #include "TaskText.hpp"
 #include "Character.hpp"
 #include "BackgroundImage.hpp"
+#include "Phase.hpp"
 
 class PhaseResourceManger {
 public:
@@ -15,12 +16,13 @@ public:
     }
 
     void NextPhase();
+    [[nodiscard]] Phase GetCurrentPhase() const { return m_Phase; }
 
 private:
     std::shared_ptr<TaskText> m_TaskText;
     std::shared_ptr<BackgroundImage> m_Background;
 
-    int m_Phase = 1;
+    Phase m_Phase = Phase::Quest1;
 };
 
 
