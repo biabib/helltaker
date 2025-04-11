@@ -1,18 +1,15 @@
 //
-// Created by USER on 2025/3/28.
+// Created by USER on 2025/4/11.
 //
 
-#ifndef HELLTAKER_BOX_HPP
-#define HELLTAKER_BOX_HPP
-
+#ifndef HELLTAKER_WALL_HPP
+#define HELLTAKER_WALL_HPP
 #include "Util/GameObject.hpp"
 #include "Map.hpp"
 
-class Box : public Util::GameObject {
+class Wall : public Util::GameObject {
 public:
-    explicit Box(float x, float y, const std::string& texturePath);
-
-    void Move(float dx, float dy);
+    explicit Wall(float x, float y, const std::string& texturePath);
 
     [[nodiscard]] glm::vec2 GetPosition() const { return m_Transform.translation; }
 
@@ -22,4 +19,6 @@ public:
 private:
     std::string m_TexturePath;
 };
-#endif //HELLTAKER_BOX_HPP
+
+
+#endif //HELLTAKER_WALL_HPP

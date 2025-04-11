@@ -27,6 +27,10 @@ public:
         temp->SetLooping(looping);
     }
 
+    void SetAnimation(const std::vector<std::string>& AnimationPaths, bool loop = true) {
+        m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, loop, 60, false, 0);
+    }
+
     [[nodiscard]] bool IfAnimationEnds() const;
     AnimatedCharacter(const AnimatedCharacter&) = delete;
 

@@ -6,6 +6,7 @@
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
 #include "Map.hpp"
+#include "Wall.hpp"
 #include "Util/Text.hpp"
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"
@@ -47,11 +48,18 @@ private:
     Util::Renderer m_Root;
 
     std::shared_ptr<AnimatedCharacter> m_Hero;
+    std::vector<std::string> m_HeroStandbyImages;
+    std::vector<std::string> m_HeroMoveImages;
+    std::vector<std::string> m_HeroKickImages;
     std::shared_ptr<PhaseResourceManger> m_PRM;
+    std::vector<std::vector<int>> m_mapData;
     std::vector<std::vector<std::shared_ptr<Map>>> m_grid;
     std::vector<std::shared_ptr<Box>> m_boxes;
     bool m_EnterDown = false;
     bool CheckCollision(const glm::vec2& newPosition);
+    void TryMoveHero(const glm::vec2& direction);
+    bool IsWalkable(const glm::vec2& position);
+    bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);
 };
 
 #endif
