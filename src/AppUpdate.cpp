@@ -8,26 +8,37 @@ void App::Update() {
         m_CurrentState = State::END;
     }
 
-    if (Util::Input::IsKeyPressed(Util::Keycode::F1)) {
-        // 清除現有物件
-        m_Root = Util::Renderer();
+    if (Util::Input::IsKeyPressed(Util::Keycode::R)) {
+        m_Root = Util::Renderer();  // 重建畫面根節點
         m_grid.clear();
         m_boxes.clear();
         m_enemies.clear();
         m_goals.clear();
+        m_LockedBlocks.clear();
+        m_HasKey = false;
 
-        // 重新載入目前階段的地圖資料
         Phase currentPhase = m_PRM->GetCurrentPhase();
         std::string mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(currentPhase)) + ".txt";
 
         if (std::filesystem::exists(mapPath)) {
             m_mapData = MapStorage::LoadMap(mapPath);
-            LoadMapFromData();
-            LOG_DEBUG("Map reloaded from {}", mapPath);
-        } else {
-            LOG_DEBUG("Map file not found for phase {}", static_cast<int>(currentPhase));
+            LoadMapFromData();  // 這裡會清空原本的 Root children
+        }
+
+        m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+        m_Reload->SetLooping(false);
+        m_Reload->SetVisible(true);
+        m_Reload->Play();
+        isReloading = true;
+    }
+    if(isReloading){
+        if(m_Reload->IfAnimationEnds()) {
+            m_Reload->SetVisible(false);
+            isReloading = false;
+            m_Root.RemoveChild(m_Reload);
         }
     }
+
     if (Util::Input::IsKeyDown(Util::Keycode::UP) || Util::Input::IsKeyDown(Util::Keycode::W)) {
         TryMoveHero(glm::vec2(0, 1));
     }
@@ -51,6 +62,12 @@ void App::Update() {
         }
     }
 
+    if (m_Key && m_Hero->GetPosition() == m_Key->GetPosition()) {
+        m_HasKey = true;
+        m_Key->SetVisible(false);
+        LOG_DEBUG("Key obtained!");
+    }
+
     if (!m_goals.empty()) {
         glm::vec2 goalPos = m_goals[0]->GetPosition();
         glm::vec2 heroPos = m_Hero->GetPosition();
@@ -67,6 +84,11 @@ void App::Update() {
 
         if (adjacent) {
             ValidTask();
+            m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+            m_Reload->SetLooping(false);
+            m_Reload->SetVisible(true);
+            m_Reload->Play();
+            isReloading = true;
         }
     }
 
@@ -124,6 +146,9 @@ bool App::IsWalkable(const glm::vec2 &position) {
     for (auto &row: m_grid) {
         for (auto &tile: row) {
             if (tile->isObstacle()) {
+                if (std::find(m_LockedBlocks.begin(), m_LockedBlocks.end(), tile) != m_LockedBlocks.end()) {
+                    continue;  // 跳過鎖的處理
+                }
                 glm::vec2 tilePos = tile->GetPosition();
                 glm::vec2 tileTopLeft = tilePos - glm::vec2(50.0f, 50.0f);
                 glm::vec2 tileBottomRight = tilePos + glm::vec2(50.0f, 50.0f);
@@ -149,13 +174,16 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     if (direction.x < 0) m_Hero->m_Transform.scale.x = -1.0f;
     else if (direction.x > 0) m_Hero->m_Transform.scale.x = 1.0f;
 
+
     // 嘗試推箱子
     if (IsBoxAtPosition(heroNewPos, box)) {
         glm::vec2 boxNewPos = box->GetPosition() + direction * 100.0f;
 
         std::shared_ptr<Box> blockingBox;
+        std::shared_ptr<Enemy> blockingEnemy;
         bool canPush = IsWalkable(boxNewPos) &&
                        !IsBoxAtPosition(boxNewPos, blockingBox) &&
+                       !IsEnemyAtPosition(boxNewPos, blockingEnemy) &&
                        !IsGoalAtPosition(boxNewPos);
 
         m_Hero->SetAnimation(m_HeroKickImages, true);
@@ -172,19 +200,22 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         glm::vec2 enemyNewPos = enemy->GetPosition() + direction * 100.0f;
 
         bool pushToGoal = IsGoalAtPosition(enemyNewPos);
-        bool canPush = IsWalkable(enemyNewPos) &&
-                       !IsBoxAtPosition(enemyNewPos, box) &&
-                       !pushToGoal;
+        bool blockedByWall = !IsWalkable(enemyNewPos);
+
+        std::shared_ptr<Box> blockingBox;
+        std::shared_ptr<Enemy> blockingEnemy;
+        bool blockedByBox = IsBoxAtPosition(enemyNewPos, blockingBox);
+        bool blockedByEnemy = IsEnemyAtPosition(enemyNewPos, blockingEnemy);
 
         m_Hero->SetAnimation(m_HeroKickImages, true);
         enemy->SetAnimation(m_EnemyPushedImages, true);
 
-        if (canPush) {
+        if (!blockedByWall && !blockedByBox && !blockedByEnemy && !pushToGoal) {
             enemy->SetPosition(enemyNewPos);
             if (direction.x > 0) enemy->m_Transform.scale.x = -1.0f;
             else if (direction.x < 0) enemy->m_Transform.scale.x = 1.0f;
-
-        } else if (!IsWalkable(enemyNewPos) || pushToGoal) {
+        } else {
+            // 被阻擋，直接移除敵人
             m_Root.RemoveChild(enemy);
             m_enemies.erase(std::remove(m_enemies.begin(), m_enemies.end(), enemy), m_enemies.end());
         }
@@ -194,8 +225,23 @@ void App::TryMoveHero(const glm::vec2 &direction) {
 
     // 一般移動
     if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
+
+        // 判斷是否有鎖
+        for (auto it = m_LockedBlocks.begin(); it != m_LockedBlocks.end(); ++it) {
+            if ((*it)->GetPosition() == heroNewPos) {
+                if (m_HasKey) {
+                    m_Root.RemoveChild(*it);
+                    it = m_LockedBlocks.erase(it);  // 正確移除
+                    break;
+                } else {
+                    return;
+                }
+            }
+        }
+
         m_Hero->SetAnimation(m_HeroMoveImages, true);
         m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
+        return;
     } else {
         // 沒移動也播放待機動畫
         m_Hero->SetAnimation(m_HeroMoveImages, true);

@@ -16,6 +16,8 @@ void App::Start() {
     m_EnemyStandbyImages.clear();
     m_EnemyPushedImages.clear();
     m_GoalImages.clear();
+    m_KeyImages.clear();
+    m_ReloadImages.clear();
 
     for (int i = 1; i < 12; ++i)
         m_HeroStandbyImages.emplace_back(HT_RESOURCE_DIR "/Image/Hero/Standby/hero" + std::to_string(i) + ".png");
@@ -35,6 +37,12 @@ void App::Start() {
     for (int i = 1; i < 12; ++i)
         m_GoalImages.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal-1_" + std::to_string(i) + ".png");
 
+    for (int i = 1; i < 12; ++i)
+        m_KeyImages.emplace_back(HT_RESOURCE_DIR "/Image/Key/key" + std::to_string(i) + ".png");
+
+    for (int i = 1; i < 29; ++i)
+        m_ReloadImages.emplace_back(HT_RESOURCE_DIR "/Image/Reload/transition_" + std::to_string(i+1) + ".png");
+
     if (m_Phase == Phase::Quest1)
         m_mapData = MapStorage::LoadMap(HT_RESOURCE_DIR "/Maps/map1.txt");
 
@@ -44,11 +52,22 @@ void App::Start() {
     m_Root.AddChildren(m_PRM->GetChildren());
 
     m_CurrentState = State::UPDATE;
+
+    m_Reload = std::make_shared<Reload>(m_ReloadImages);
+    m_Reload->SetPosition({0.0f , 0.0f});
+    m_Reload->SetZIndex(50);
+    m_Reload->SetLooping(false);
+    m_Reload->SetVisible(false);  // 不顯示
+    m_Reload->Pause();            // 停止播放
+    m_Root.AddChild(m_Reload);
+    isReloading = false;          // 不進入播放流程
 }
 
 void App::LoadMapFromData() {
     float offsetX = -(1600.0f / 2.0f) + 50;
     float offsetY = (900.0f / 2.0f) - 50;
+
+
 
     for (int row = 0; row < m_mapData.size(); ++row) {
         std::vector<std::shared_ptr<Map>> tileRow;
@@ -105,10 +124,28 @@ void App::LoadMapFromData() {
                     m_Root.AddChild(m_Hero);
                     break;
                 }
+                case 7: {
+                    m_Key = std::make_shared<Key>(m_KeyImages);
+                    m_Key->SetPosition({worldX, worldY});
+                    m_Key->SetZIndex(5);
+                    m_Root.AddChild(m_Key);
+                    break;
+                }
+                case 8: {
+                    auto locked = std::make_shared<LockedBlock>(worldX, worldY, HT_RESOURCE_DIR "/Image/Wall/LockedBlock.png");
+                    locked->SetZIndex(3);
+                    tileRow.push_back(locked);
+                    m_LockedBlocks.push_back(locked);
+                    m_Root.AddChild(locked);
+                    break;
+                }
                 default:
                     break;
             }
         }
+
+
+
         m_grid.push_back(tileRow);
     }
 }

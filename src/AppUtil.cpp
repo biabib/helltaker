@@ -35,6 +35,7 @@ void App::ValidTask() {
     m_boxes.clear();
     m_enemies.clear();
     m_goals.clear();
+    m_HasKey = false;
 
     // 換階段
     m_PRM->NextPhase();
