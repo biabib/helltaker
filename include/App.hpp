@@ -13,6 +13,9 @@
 #include "AnimatedCharacter.hpp"
 #include "Box.hpp"
 #include "MapStorage.hpp"
+#include "Key.hpp"
+#include "Reload.hpp"
+#include "LockedBlock.hpp"
 #include "Util/Logger.hpp"
 
 class App {
@@ -55,8 +58,15 @@ private:
     std::vector<std::string> m_EnemyPushedImages;
     std::vector<std::shared_ptr<Goal>> m_goals;
     std::vector<std::string> m_GoalImages;
+    std::shared_ptr<Reload> m_Reload;
+    std::vector<std::string> m_ReloadImages;
+    std::shared_ptr<Key> m_Key;
+    std::vector<std::string> m_KeyImages;
+    std::vector<std::shared_ptr<LockedBlock>> m_LockedBlocks;
 
     bool m_EnterDown = false;
+    bool isReloading = false;
+    bool m_HasKey = false;
     void LoadMapFromData();
     void TryMoveHero(const glm::vec2& direction);
     bool IsWalkable(const glm::vec2& position);
