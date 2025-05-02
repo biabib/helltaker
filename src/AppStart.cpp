@@ -68,7 +68,7 @@ void App::LoadMapFromData() {
     float offsetY = (900.0f / 2.0f) - 50;
 
 
-
+    //label:[1:floor, 2:box, 3:wall, 4:enemy, 5:goal, 6:hero, 7:key, 8:chest]
     for (int row = 0; row < m_mapData.size(); ++row) {
         std::vector<std::shared_ptr<Map>> tileRow;
         for (int col = 0; col < m_mapData[row].size(); ++col) {
