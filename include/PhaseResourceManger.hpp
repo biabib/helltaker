@@ -12,7 +12,7 @@ public:
     PhaseResourceManger();
 
     [[nodiscard]] std::vector<std::shared_ptr<Util::GameObject>> GetChildren() const {
-        return {m_TaskText, m_Background};
+        return {m_TaskText, m_TaskText2};
     }
 
     void NextPhase();
@@ -21,7 +21,6 @@ public:
 private:
     std::shared_ptr<TaskText> m_TaskText;
     std::shared_ptr<TaskText> m_TaskText2;
-    std::shared_ptr<BackgroundImage> m_Background;
 
     Phase m_Phase = Phase::Quest1;
 };

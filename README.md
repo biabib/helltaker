@@ -1,1 +1,4 @@
 # Helltaker
+未作項目
+更新hero實作，文字顯示，地刺 前兩個已有些頭緒但未改完
+目前並無法直接執行，若要執行將TaskText中的m_InputText改成任意字串即可

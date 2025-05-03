@@ -33,6 +33,12 @@ public:
 
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
+    std::vector<std::shared_ptr<Box>>& GetBoxes() { return m_boxes; }
+    std::vector<std::shared_ptr<Enemy>>& GetEnemies() { return m_enemies; }
+    std::vector<std::shared_ptr<Goal>>& GetGoals() { return m_goals; }
+    std::vector<std::vector<std::shared_ptr<Map>>>& GetGrid() { return m_grid; }
+    std::vector<std::shared_ptr<LockedBlock>>& GetLockedBlocks() { return m_LockedBlocks; }
+
 private:
     void ValidTask();
 

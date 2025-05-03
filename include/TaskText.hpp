@@ -4,40 +4,58 @@
 #include "Util/GameObject.hpp"
 #include "Util/Text.hpp"
 #include "Util/Color.hpp"
+#include "Util/Logger.hpp"
+
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class TaskText : public Util::GameObject {
 public:
     TaskText() : GameObject(std::make_unique<Util::Text>(HT_RESOURCE_DIR"/Font/Inkfree.ttf", 20,
-                                         m_InputText,
-                                         Util::Color::FromName(Util::Colors::WHITE)),100)
-     {
-//        m_Transform.translation = {0.0F, -270.F};
+                                                         m_InputText,
+                                                         Util::Color::FromName(Util::Colors::WHITE)), 100) {
+
     }
-    void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
+
+    void SetPosition(const glm::vec2& Position) {
+        m_Transform.translation = Position;
+    }
+
     void SetText(const std::string& text) {
         m_InputText = text;
-        if (m_Text) {
-            m_Text->SetText(m_InputText);
+        auto temp = std::dynamic_pointer_cast<Util::Text>(m_Drawable);
+        if (temp) {
+            temp->SetText(m_InputText);
         }
     }
+
     void NextPhase(const int phase) {
-        auto temp = std::dynamic_pointer_cast<Util::Text>(m_Drawable);
-        temp->SetText(append_string_views(s_PhaseTasks[phase], s_Validation));
+        std::string taskText = LoadTaskFromLine(HT_RESOURCE_DIR "/Map/StepOfMap.txt", phase);
+        SetText(taskText);
     }
 
 private:
-    inline static std::string append_string_views(std::string_view sv1, std::string_view sv2) {
-        return std::string(sv1) + "\n" + std::string(sv2);
+    std::string LoadTaskFromLine(const std::string& filepath, int lineNumber) {
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            return "無法開啟任務檔案";
+        }
+
+        std::string line;
+        int currentLine = 0;
+        while (std::getline(file, line)) {
+            if (currentLine == lineNumber) {
+                return line;
+            }
+            ++currentLine;
+        }
+
+        return "任務資料不存在";
     }
 
-    static constexpr std::string_view s_PhaseTasks[6] = {
-            "30",
-    };
-    static constexpr std::string_view s_Validation = "Press Enter to validate";
-    std::shared_ptr<Util::Text> m_Text;
-    std::string m_InputText;
-
+    std::string m_InputText = "123";
 };
-
 
 #endif //TASKTEXT_HPP
