@@ -20,6 +20,7 @@ public:
 
 private:
     std::shared_ptr<TaskText> m_TaskText;
+    std::shared_ptr<TaskText> m_TaskText2;
     std::shared_ptr<BackgroundImage> m_Background;
 
     Phase m_Phase = Phase::Quest1;

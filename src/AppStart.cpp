@@ -48,12 +48,25 @@ void App::Start() {
 
     LoadMapFromData();
 
+    m_StepUI = std::make_shared<Character>(HT_RESOURCE_DIR "/Image/UI/UI.png");
+    m_LevelUI = std::make_shared<Character>(HT_RESOURCE_DIR "/Image/UI/UI.png");
+    m_StepUI->SetPosition({-650,-200});
+    m_StepUI->SetZIndex(10);
+    m_StepUI->m_Transform.scale.x = 0.8f;
+    m_StepUI->m_Transform.scale.y = 0.8f;
+    m_LevelUI->SetPosition({650,-200});
+    m_LevelUI->SetZIndex(10);
+    m_LevelUI->m_Transform.scale.x = -0.8f;
+    m_LevelUI->m_Transform.scale.y = 0.8f;
+    m_Root.AddChild(m_StepUI);
+    m_Root.AddChild(m_LevelUI);
+
     m_PRM = std::make_shared<PhaseResourceManger>();
     m_Root.AddChildren(m_PRM->GetChildren());
 
     m_CurrentState = State::UPDATE;
 
-    m_Reload = std::make_shared<Reload>(m_ReloadImages);
+    m_Reload = std::make_shared<AnimatedCharacter>(m_ReloadImages);
     m_Reload->SetPosition({0.0f , 0.0f});
     m_Reload->SetZIndex(50);
     m_Reload->SetLooping(false);
@@ -66,7 +79,6 @@ void App::Start() {
 void App::LoadMapFromData() {
     float offsetX = -(1600.0f / 2.0f) + 50;
     float offsetY = (900.0f / 2.0f) - 50;
-
 
 
     for (int row = 0; row < m_mapData.size(); ++row) {
@@ -127,7 +139,7 @@ void App::LoadMapFromData() {
                 case 7: {
                     m_Key = std::make_shared<Key>(m_KeyImages);
                     m_Key->SetPosition({worldX, worldY});
-                    m_Key->SetZIndex(5);
+                    m_Key->SetZIndex(3);
                     m_Root.AddChild(m_Key);
                     break;
                 }
@@ -143,7 +155,6 @@ void App::LoadMapFromData() {
                     break;
             }
         }
-
 
 
         m_grid.push_back(tileRow);

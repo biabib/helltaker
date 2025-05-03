@@ -24,8 +24,10 @@ void App::Update() {
             m_mapData = MapStorage::LoadMap(mapPath);
             LoadMapFromData();  // 這裡會清空原本的 Root children
         }
-
+        m_Root.AddChild(m_StepUI);
+        m_Root.AddChild(m_LevelUI);
         m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+        m_Reload->SetCurrentFrame();
         m_Reload->SetLooping(false);
         m_Reload->SetVisible(true);
         m_Reload->Play();
@@ -84,7 +86,10 @@ void App::Update() {
 
         if (adjacent) {
             ValidTask();
+            m_Root.AddChild(m_StepUI);
+            m_Root.AddChild(m_LevelUI);
             m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+            m_Reload->SetCurrentFrame();
             m_Reload->SetLooping(false);
             m_Reload->SetVisible(true);
             m_Reload->Play();
@@ -181,7 +186,9 @@ void App::TryMoveHero(const glm::vec2 &direction) {
 
         std::shared_ptr<Box> blockingBox;
         std::shared_ptr<Enemy> blockingEnemy;
-        bool canPush = IsWalkable(boxNewPos) &&
+
+        bool canPush = TryUnlockLockedBlockAt(boxNewPos) &&
+                       IsWalkable(boxNewPos) &&
                        !IsBoxAtPosition(boxNewPos, blockingBox) &&
                        !IsEnemyAtPosition(boxNewPos, blockingEnemy) &&
                        !IsGoalAtPosition(boxNewPos);
@@ -200,7 +207,7 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         glm::vec2 enemyNewPos = enemy->GetPosition() + direction * 100.0f;
 
         bool pushToGoal = IsGoalAtPosition(enemyNewPos);
-        bool blockedByWall = !IsWalkable(enemyNewPos);
+        bool blockedByWallOrLock = !TryUnlockLockedBlockAt(enemyNewPos) || !IsWalkable(enemyNewPos);
 
         std::shared_ptr<Box> blockingBox;
         std::shared_ptr<Enemy> blockingEnemy;
@@ -210,12 +217,11 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         m_Hero->SetAnimation(m_HeroKickImages, true);
         enemy->SetAnimation(m_EnemyPushedImages, true);
 
-        if (!blockedByWall && !blockedByBox && !blockedByEnemy && !pushToGoal) {
+        if (!blockedByWallOrLock && !blockedByBox && !blockedByEnemy && !pushToGoal) {
             enemy->SetPosition(enemyNewPos);
             if (direction.x > 0) enemy->m_Transform.scale.x = -1.0f;
             else if (direction.x < 0) enemy->m_Transform.scale.x = 1.0f;
         } else {
-            // 被阻擋，直接移除敵人
             m_Root.RemoveChild(enemy);
             m_enemies.erase(std::remove(m_enemies.begin(), m_enemies.end(), enemy), m_enemies.end());
         }
@@ -225,25 +231,28 @@ void App::TryMoveHero(const glm::vec2 &direction) {
 
     // 一般移動
     if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
-
-        // 判斷是否有鎖
-        for (auto it = m_LockedBlocks.begin(); it != m_LockedBlocks.end(); ++it) {
-            if ((*it)->GetPosition() == heroNewPos) {
-                if (m_HasKey) {
-                    m_Root.RemoveChild(*it);
-                    it = m_LockedBlocks.erase(it);  // 正確移除
-                    break;
-                } else {
-                    return;
-                }
-            }
+        if (!TryUnlockLockedBlockAt(heroNewPos)) {
+            return; // 有鎖但沒鑰匙，不能走
         }
 
         m_Hero->SetAnimation(m_HeroMoveImages, true);
         m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
         return;
-    } else {
-        // 沒移動也播放待機動畫
-        m_Hero->SetAnimation(m_HeroMoveImages, true);
     }
+}
+bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
+    for (auto it = m_LockedBlocks.begin(); it != m_LockedBlocks.end(); ++it) {
+        if ((*it)->GetPosition() == position) {
+            if (m_HasKey) {
+                m_Root.RemoveChild(*it);
+                m_LockedBlocks.erase(it);
+                m_HasKey = false; // 🗝️ 鑰匙為一次性
+                LOG_DEBUG("Unlocked LockedBlock at ({}, {})", position.x, position.y);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    return true; // 沒鎖，可以通過
 }
