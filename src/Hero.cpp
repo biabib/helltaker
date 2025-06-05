@@ -5,10 +5,10 @@
 #include "Box.hpp"
 #include "Enemy.hpp"
 
-Hero::Hero(App& app) : m_App(app), m_HasKey(false) {
-    // 初始化Hero
+Hero::Hero(App& app, const std::vector<std::string>& AnimationPaths)
+        : m_App(app), m_HasKey(false) {
+    m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, true, 60, true, 0);
 }
-
 
 void Hero::Move(const glm::vec2& direction, bool& isPushingBox, bool& isPushingEnemy, bool& canPush) {
     glm::vec2 newPosition = m_Transform.translation + direction * 100.0f;
@@ -47,9 +47,7 @@ bool Hero::IsAtPosition(const glm::vec2& position) {
     return m_Transform.translation == position;
 }
 
-void Hero::SetAnimation(const std::vector<std::shared_ptr<Util::Image>>& animationImages, bool loop) {
-    // 設定角色動畫
-}
+
 
 bool Hero::IfAnimationEnds() const {
     // 判斷動畫是否結束

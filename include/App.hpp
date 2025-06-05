@@ -3,11 +3,13 @@
 
 #include "pch.hpp" // IWYU pragma: export
 
+
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
 #include "Map.hpp"
 #include "Enemy.hpp"
 #include "Goal.hpp"
+#include "Hero.hpp"
 #include "Util/Text.hpp"
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"
@@ -16,6 +18,7 @@
 #include "Key.hpp"
 #include "Reload.hpp"
 #include "LockedBlock.hpp"
+#include "Spike.hpp"
 #include "Util/Logger.hpp"
 
 class App {
@@ -72,6 +75,11 @@ private:
     std::shared_ptr<Character> m_StepUI;
     std::shared_ptr<Character> m_LevelUI;
 
+    std::vector<std::shared_ptr<Spike>> m_Spikes;
+    std::vector<std::string> m_SpikeUpImages;
+    std::vector<std::string> m_SpikeDownImages;
+
+    int m_Steps = 30;
 
     bool m_EnterDown = false;
     bool isReloading = false;

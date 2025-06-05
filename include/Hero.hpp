@@ -13,11 +13,12 @@
 
 class Hero : public Util::GameObject {
 public:
-    Hero(App& app);
-
+    explicit Hero(App& app, const std::vector<std::string>& AnimationPaths);
     void Move(const glm::vec2& direction, bool& isPushingBox, bool& isPushingEnemy, bool& canPush);
     bool IsAtPosition(const glm::vec2& position);
-    void SetAnimation(const std::vector<std::shared_ptr<Util::Image>>& animationImages, bool loop = false);
+    void SetAnimation(const std::vector<std::string>& AnimationPaths, bool loop = true) {
+        m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, loop, 60, true, 0);
+    }
     bool IfAnimationEnds() const;
 
     bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);

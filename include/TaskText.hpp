@@ -14,7 +14,7 @@
 class TaskText : public Util::GameObject {
 public:
     TaskText() : GameObject(std::make_unique<Util::Text>(HT_RESOURCE_DIR"/Font/Inkfree.ttf", 20,
-                                                         m_InputText,
+                                                         "123",
                                                          Util::Color::FromName(Util::Colors::WHITE)), 100) {
 
     }

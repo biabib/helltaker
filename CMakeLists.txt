@@ -28,8 +28,10 @@ file(GLOB_RECURSE HEADER_FILES include/*.hpp)
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${HEADER_FILES}
         include/Map.hpp
         src/Map.cpp
+        src/Hero.cpp
         include/TextureManager.hpp
         src/Reload.cpp
+        src/Spike.cpp
 )
 
 if(MSVC)

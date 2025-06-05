@@ -26,7 +26,7 @@ void App::Update() {
         }
         m_Root.AddChild(m_StepUI);
         m_Root.AddChild(m_LevelUI);
-        m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+        m_Root.AddChild(m_Reload);  // 重新加入動畫物件
         m_Reload->SetCurrentFrame();
         m_Reload->SetLooping(false);
         m_Reload->SetVisible(true);
@@ -88,7 +88,7 @@ void App::Update() {
             ValidTask();
             m_Root.AddChild(m_StepUI);
             m_Root.AddChild(m_LevelUI);
-            m_Root.AddChild(m_Reload);  // 💡 重新加入動畫物件
+            m_Root.AddChild(m_Reload);  // 重新加入動畫物件
             m_Reload->SetCurrentFrame();
             m_Reload->SetLooping(false);
             m_Reload->SetVisible(true);
@@ -96,9 +96,22 @@ void App::Update() {
             isReloading = true;
         }
     }
-
+    for (auto it = m_enemies.begin(); it != m_enemies.end(); ) {
+        const auto& enemy = *it;
+        for (const auto& spike : m_Spikes) {
+            if (spike->GetPosition() == enemy->GetPosition() && spike->IsActive()) {
+                LOG_DEBUG("Enemy stepped on active spike!");
+                m_Root.RemoveChild(enemy);
+                it = m_enemies.erase(it);  // 移除敵人
+                goto nextEnemy;  // 跳出內層迴圈
+            }
+        }
+        ++it;
+        nextEnemy:;
+    }
 
     m_Root.Update();
+
 }
 
 bool App::IsBoxAtPosition(const glm::vec2 &position, std::shared_ptr<Box> &outBox) {
@@ -179,6 +192,11 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     if (direction.x < 0) m_Hero->m_Transform.scale.x = -1.0f;
     else if (direction.x > 0) m_Hero->m_Transform.scale.x = 1.0f;
 
+    m_Steps-=1;
+
+    for (auto& spike : m_Spikes) {
+        spike->OnStep(); // 切換狀態（如果是 Toggle）
+    }
 
     // 嘗試推箱子
     if (IsBoxAtPosition(heroNewPos, box)) {
@@ -232,12 +250,25 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     // 一般移動
     if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
         if (!TryUnlockLockedBlockAt(heroNewPos)) {
+            m_Steps++;
             return; // 有鎖但沒鑰匙，不能走
         }
 
         m_Hero->SetAnimation(m_HeroMoveImages, true);
+        bool isPushingBox = false;
+        bool isPushingEnemy = false;
+        bool canPush = true;
         m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
         return;
+    }
+
+
+
+    for (const auto& spike : m_Spikes) {
+        if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
+            m_Steps--;  // 或觸發死亡、重置等處理
+            LOG_DEBUG("Hero stepped on active spike!");
+        }
     }
 }
 bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
@@ -246,7 +277,7 @@ bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
             if (m_HasKey) {
                 m_Root.RemoveChild(*it);
                 m_LockedBlocks.erase(it);
-                m_HasKey = false; // 🗝️ 鑰匙為一次性
+                m_HasKey = false; //  鑰匙為一次性
                 LOG_DEBUG("Unlocked LockedBlock at ({}, {})", position.x, position.y);
                 return true;
             } else {

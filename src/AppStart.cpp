@@ -43,8 +43,16 @@ void App::Start() {
     for (int i = 1; i < 29; ++i)
         m_ReloadImages.emplace_back(HT_RESOURCE_DIR "/Image/Reload/transition_" + std::to_string(i+1) + ".png");
 
+    for (int i = 1; i <= 4; ++i) {
+        m_SpikeUpImages.emplace_back(HT_RESOURCE_DIR "/Image/Spike/spike" + std::to_string(i+4) + ".png");
+        m_SpikeDownImages.emplace_back(HT_RESOURCE_DIR "/Image/Spike/spike" + std::to_string(i) + ".png");
+    }
+
+
     if (m_Phase == Phase::Quest1)
         m_mapData = MapStorage::LoadMap(HT_RESOURCE_DIR "/Maps/map1.txt");
+
+    m_Hero = std::make_shared<AnimatedCharacter>(m_HeroStandbyImages);
 
     LoadMapFromData();
 
@@ -129,10 +137,8 @@ void App::LoadMapFromData() {
                     break;
                 }
                 case 6: {
-                    m_Hero = std::make_shared<AnimatedCharacter>(m_HeroStandbyImages);
                     m_Hero->SetPosition({worldX, worldY});
                     m_Hero->SetZIndex(5);
-                    m_Hero->SetLooping(true);
                     m_Root.AddChild(m_Hero);
                     break;
                 }
@@ -149,6 +155,33 @@ void App::LoadMapFromData() {
                     tileRow.push_back(locked);
                     m_LockedBlocks.push_back(locked);
                     m_Root.AddChild(locked);
+                    break;
+                }
+                case 9: {
+                    auto spike = std::make_shared<Spike>(
+                            m_SpikeUpImages,
+                            m_SpikeDownImages,
+                            SpikeType::Toggle,
+                            1  // 每 2 步切換一次狀態
+                    );
+                    spike->SetPosition({worldX, worldY});
+                    spike->SetZIndex(4);
+                    spike->SetLooping(false);
+                    m_Spikes.push_back(spike);
+                    m_Root.AddChild(spike);
+                    break;
+                }
+                case 10: { // 代表 Static Spike（始終為上升）
+                    auto spike = std::make_shared<Spike>(
+                            m_SpikeUpImages,
+                            m_SpikeDownImages,
+                            SpikeType::Static
+                    );
+                    spike->SetPosition({worldX, worldY});
+                    spike->SetZIndex(4);
+                    spike->SetLooping(false);
+                    m_Spikes.push_back(spike);
+                    m_Root.AddChild(spike);
                     break;
                 }
                 default:
