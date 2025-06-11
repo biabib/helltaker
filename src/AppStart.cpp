@@ -19,7 +19,6 @@ void App::Start() {
     m_HeroKickImages.clear();
     m_EnemyStandbyImages.clear();
     m_EnemyPushedImages.clear();
-    m_GoalImages.clear();
     m_KeyImages.clear();
     m_ReloadImages.clear();
 
@@ -38,8 +37,19 @@ void App::Start() {
     for (int i = 1; i < 6; ++i)
         m_EnemyPushedImages.emplace_back(HT_RESOURCE_DIR "/Image/Enemy/Pushed/beKicked" + std::to_string(i) + ".png");
 
-    for (int i = 1; i < 12; ++i)
-        m_GoalImages.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal-1_" + std::to_string(i) + ".png");
+    for (int i = 1; i < 12; ++i) {
+        m_GoalImages1.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal1/" + std::to_string(i) + ".png");
+        m_GoalImages2.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal2/" + std::to_string(i) + ".png");
+        m_GoalImages3.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal3/" + std::to_string(i) + ".png");
+        m_GoalImages4.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal4/" + std::to_string(i) + ".png");
+        m_GoalImages5.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal5/" + std::to_string(i) + ".png");
+        m_GoalImages6.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal6/" + std::to_string(i) + ".png");
+        m_GoalImages7.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal7/" + std::to_string(i) + ".png");
+        m_GoalImages8.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal8/" + std::to_string(i) + ".png");
+        m_GoalImages9.emplace_back(HT_RESOURCE_DIR "/Image/Goal/Goal9/" + std::to_string(i) + ".png");
+    }
+
+
 
     for (int i = 1; i < 12; ++i)
         m_KeyImages.emplace_back(HT_RESOURCE_DIR "/Image/Key/key" + std::to_string(i) + ".png");
@@ -162,12 +172,31 @@ void App::LoadMapFromData() {
                     break;
                 }
                 case 5: {
-                    auto goal = std::make_shared<Goal>(m_GoalImages);
-                    goal->SetPosition({worldX, worldY});
-                    goal->SetZIndex(5);
-                    goal->SetLooping(true);
-                    m_goals.push_back(goal);
-                    m_Root.AddChild(goal);
+
+                    int phase = (m_PRM->GetCurrentPhase())%15;
+                    switch (phase) {
+                        case 1: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages1); break;
+                        case 2: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages2); break;
+                        case 3: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages3); break;
+                        case 4: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages4); break;
+                        case 5: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages5); break;
+                        case 6: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages6); break;
+                        case 7: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages7); break;
+                        case 8: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages8); break;
+                        case 9: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages9); break;
+                        case 10: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages1); break;
+                        case 11: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages2); break;
+                        case 12: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages3); break;
+                        case 13: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages4); break;
+                        case 14: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages5); break;
+                        case 15: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages6); break;
+                        default: m_goals = std::make_shared<AnimatedCharacter>(m_GoalImages1); break;
+                    }
+
+                    m_goals->SetPosition({worldX, worldY});
+                    m_goals->SetZIndex(5);
+                    m_goals->SetLooping(true);
+                    m_Root.AddChild(m_goals);
                     break;
                 }
                 case 6: {

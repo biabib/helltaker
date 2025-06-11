@@ -8,18 +8,22 @@ void App::Update() {
         m_CurrentState = State::END;
     }
 
-    if (Util::Input::IsKeyPressed(Util::Keycode::R) || m_Steps <= 0) {
-        m_Root = Util::Renderer();  // 重建畫面根節點
+    if (Util::Input::IsKeyPressed(Util::Keycode::R) || m_Steps < 0) {
+        m_Root = Util::Renderer();
         m_grid.clear();
         m_boxes.clear();
         m_enemies.clear();
-        m_goals.clear();
+        m_Spikes.clear();
         m_LockedBlocks.clear();
         m_HasKey = false;
 
         int currentPhase = m_PRM->GetCurrentPhase();
-        std::string mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(currentPhase)) + ".txt";
-
+        std::string mapPath;
+        if(currentPhase<16) {
+            mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(currentPhase)) + ".txt";
+        }else{
+            mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(currentPhase)-15) + ".txt";
+        }
         if (std::filesystem::exists(mapPath)) {
             m_mapData = MapStorage::LoadMap(mapPath);
             LoadMapFromData();  // 這裡會清空原本的 Root children
@@ -81,8 +85,8 @@ void App::Update() {
         LOG_DEBUG("Key obtained!");
     }
 
-    if (!m_goals.empty()) {
-        glm::vec2 goalPos = m_goals[0]->GetPosition();
+    if (m_goals != NULL) {
+        glm::vec2 goalPos = m_goals->GetPosition();
         glm::vec2 heroPos = m_Hero->GetPosition();
 
         constexpr float tileSize = 100.0f;
@@ -138,13 +142,12 @@ bool App::IsEnemyAtPosition(const glm::vec2 &position, std::shared_ptr<Enemy> &o
 }
 
 bool App::IsGoalAtPosition(const glm::vec2 &position) {
-    for (const auto &goal: m_goals) {
-        if (goal->GetPosition() == position) {
-            return true;
-        }
+    if (m_goals->GetPosition() == position) {
+        return true;
     }
     return false;
 }
+
 
 // 輔助函數：判斷某個位置是否可行走（沒有牆壁也沒有邊界）
 bool App::IsWalkable(const glm::vec2 &position) {
@@ -196,15 +199,6 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     else if (direction.x > 0) m_Hero->m_Transform.scale.x = 1.0f;
 
     m_Steps-=1;
-//    m_StepText->SetText(std::to_string(m_Steps));
-
-//    for (const auto& spike : m_Spikes) {
-//        if ((spike->GetPosition() == direction || spike->GetPosition() == m_Hero->GetPosition()) && spike->IsActive()) {
-//            m_Steps--;  // 或觸發死亡、重置等處理
-//
-//            LOG_DEBUG("Hero stepped on active spike!");
-//        }
-//    }
 
     for (auto& spike : m_Spikes) {
         spike->OnStep(); // 切換狀態（如果是 Toggle）
@@ -228,7 +222,13 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         if (canPush) {
             box->SetPosition(boxNewPos);
         }
-
+        for (const auto& spike : m_Spikes) {
+            if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
+                m_Steps -= 1;
+                LOG_DEBUG("Hero kicked enemy on active spike! Extra step deducted.");
+                break;
+            }
+        }
         return;
     }
 
@@ -237,7 +237,7 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         glm::vec2 enemyNewPos = enemy->GetPosition() + direction * 100.0f;
 
         bool pushToGoal = IsGoalAtPosition(enemyNewPos);
-        bool blockedByWallOrLock = !TryUnlockLockedBlockAt(enemyNewPos) || !IsWalkable(enemyNewPos);
+        bool blockedByWallOrLock = IsLockedBlockAt(enemyNewPos) || !IsWalkable(enemyNewPos);
 
         std::shared_ptr<Box> blockingBox;
         std::shared_ptr<Enemy> blockingEnemy;
@@ -256,6 +256,14 @@ void App::TryMoveHero(const glm::vec2 &direction) {
             m_enemies.erase(std::remove(m_enemies.begin(), m_enemies.end(), enemy), m_enemies.end());
         }
 
+        for (const auto& spike : m_Spikes) {
+            if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
+                m_Steps -= 1;
+                LOG_DEBUG("Hero kicked enemy on active spike! Extra step deducted.");
+                break;
+            }
+        }
+
         return;
     }
 
@@ -265,7 +273,6 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
         if (!TryUnlockLockedBlockAt(heroNewPos)) {
             m_Steps++;
-//            m_StepText->SetText(std::to_string(m_Steps));
             return; // 有鎖但沒鑰匙，不能走
         }
 
@@ -276,23 +283,27 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
         for (const auto& spike : m_Spikes) {
             if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
-//                m_Steps--;
-                beMinus = 2;
+                m_Steps -= 1;
                 LOG_DEBUG("Hero stepped on active spike!");
             }
         }
-        if(beMinus>0){
-            m_Steps--;
-            beMinus--;
-        }
+
         return;
 
     }
 
 
-
-
 }
+
+bool App::IsLockedBlockAt(const glm::vec2& position) {
+    for (const auto& block : m_LockedBlocks) {
+        if (block->GetPosition() == position) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
     for (auto it = m_LockedBlocks.begin(); it != m_LockedBlocks.end(); ++it) {
         if ((*it)->GetPosition() == position) {

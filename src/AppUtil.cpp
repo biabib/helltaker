@@ -15,9 +15,9 @@
 void App::ValidTask() {
     LOG_DEBUG("Validating the task {}", static_cast<int>(m_PRM->GetCurrentPhase()));
 
-    if (m_goals.empty()) return;
+    if (m_goals == NULL) return;
 
-    const auto goalPos = m_goals[0]->GetPosition();
+    const auto goalPos = m_goals->GetPosition();
     const auto heroPos = m_Hero->GetPosition();
 
     constexpr float tileSize = 100.0f;
@@ -32,15 +32,22 @@ void App::ValidTask() {
     m_grid.clear();
     m_boxes.clear();
     m_enemies.clear();
-    m_goals.clear();
+    m_Spikes.clear();
+    m_LockedBlocks.clear();
     m_HasKey = false;
 
     // 換階段
     m_PRM->NextPhase();
+    if(m_PRM->GetCurrentPhase() > 30) m_CurrentState = State::END;
     int newPhase = m_PRM->GetCurrentPhase();
 
     // 判斷新地圖檔案是否存在
-    std::string mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(newPhase)) + ".txt";
+    std::string mapPath;
+    if(newPhase<16) {
+        mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(newPhase)) + ".txt";
+    }else{
+        mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(newPhase)-15) + ".txt";
+    }
     if (!std::filesystem::exists(mapPath)) {
         LOG_DEBUG("No more maps. Game complete.");
         return;

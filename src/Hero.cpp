@@ -5,12 +5,12 @@
 #include "Box.hpp"
 #include "Enemy.hpp"
 
-Hero::Hero(App& app, const std::vector<std::string>& AnimationPaths)
+Hero::Hero(App &app, const std::vector<std::string> &AnimationPaths)
         : m_App(app), m_HasKey(false) {
     m_Drawable = std::make_shared<Util::Animation>(AnimationPaths, true, 60, true, 0);
 }
 
-void Hero::Move(const glm::vec2& direction, bool& isPushingBox, bool& isPushingEnemy, bool& canPush) {
+void Hero::Move(const glm::vec2 &direction, bool &isPushingBox, bool &isPushingEnemy, bool &canPush) {
     glm::vec2 newPosition = m_Transform.translation + direction * 100.0f;
 
     std::shared_ptr<Box> box;
@@ -43,19 +43,19 @@ void Hero::Move(const glm::vec2& direction, bool& isPushingBox, bool& isPushingE
     }
 }
 
-bool Hero::IsAtPosition(const glm::vec2& position) {
+bool Hero::IsAtPosition(const glm::vec2 &position) {
     return m_Transform.translation == position;
 }
-
 
 
 bool Hero::IfAnimationEnds() const {
     // 判斷動畫是否結束
     return false;
 }
+
 // 检查位置是否有箱子
-bool Hero::IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox) {
-    for (auto &box : m_App.GetBoxes()) {
+bool Hero::IsBoxAtPosition(const glm::vec2 &position, std::shared_ptr<Box> &outBox) {
+    for (auto &box: m_App.GetBoxes()) {
         if (box->GetPosition() == position) {
             outBox = box;
             return true;
@@ -65,8 +65,8 @@ bool Hero::IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outB
 }
 
 // 检查位置是否有敌人
-bool Hero::IsEnemyAtPosition(const glm::vec2& position, std::shared_ptr<Enemy>& outEnemy) {
-    for (auto &enemy : m_App.GetEnemies()) {
+bool Hero::IsEnemyAtPosition(const glm::vec2 &position, std::shared_ptr<Enemy> &outEnemy) {
+    for (auto &enemy: m_App.GetEnemies()) {
         if (enemy->GetPosition() == position) {
             outEnemy = enemy;
             return true;
@@ -76,14 +76,14 @@ bool Hero::IsEnemyAtPosition(const glm::vec2& position, std::shared_ptr<Enemy>& 
 }
 
 // 检查位置是否有目标
-bool Hero::IsGoalAtPosition(const glm::vec2& position) {
-    for (const auto &goal : m_App.GetGoals()) {
-        if (goal->GetPosition() == position) {
-            return true;
-        }
-    }
-    return false;
-}
+//bool Hero::IsGoalAtPosition(const glm::vec2 &position) {
+//
+//    if (goal->GetPosition() == position) {
+//        return true;
+//    }
+//
+//    return false;
+//}
 
 bool Hero::IsWalkable(const glm::vec2 &position) {
     glm::vec2 topLeft = position - glm::vec2(50.0f, 50.0f);
@@ -104,7 +104,8 @@ bool Hero::IsWalkable(const glm::vec2 &position) {
     for (auto &row: m_App.GetGrid()) {
         for (auto &tile: row) {
             if (tile->isObstacle()) {
-                if (std::find(m_App.GetLockedBlocks().begin(), m_App.GetLockedBlocks().end(), tile) != m_App.GetLockedBlocks().end()) {
+                if (std::find(m_App.GetLockedBlocks().begin(), m_App.GetLockedBlocks().end(), tile) !=
+                    m_App.GetLockedBlocks().end()) {
                     continue;  // 跳过锁住的格子
                 }
                 glm::vec2 tilePos = tile->GetPosition();

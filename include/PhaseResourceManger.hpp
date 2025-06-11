@@ -4,7 +4,6 @@
 #include "Util/GameObject.hpp"
 #include "TaskText.hpp"
 #include "Character.hpp"
-#include "Phase.hpp"
 
 class PhaseResourceManger {
 public:

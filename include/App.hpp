@@ -30,18 +30,6 @@ public:
         END,
     };
 
-    const char* tranfer(Phase p) {
-        switch (p) {
-            case Phase::None: return "0";
-            case Phase::Quest1: return "1";
-            case Phase::Quest2: return "2";
-            case Phase::Quest3: return "3";
-            case Phase::Quest4: return "4";
-            case Phase::Quest5: return "5";
-            case Phase::Quest6: return "6";
-            default: return "null";
-        }
-    }
 
     State GetCurrentState() const { return m_CurrentState; }
 
@@ -53,7 +41,7 @@ public:
 
     std::vector<std::shared_ptr<Box>>& GetBoxes() { return m_boxes; }
     std::vector<std::shared_ptr<Enemy>>& GetEnemies() { return m_enemies; }
-    std::vector<std::shared_ptr<Goal>>& GetGoals() { return m_goals; }
+    std::shared_ptr<AnimatedCharacter>& GetGoals() { return m_goals; }
     std::vector<std::vector<std::shared_ptr<Map>>>& GetGrid() { return m_grid; }
     std::vector<std::shared_ptr<LockedBlock>>& GetLockedBlocks() { return m_LockedBlocks; }
 
@@ -79,8 +67,17 @@ private:
     std::vector<std::shared_ptr<Enemy>> m_enemies;
     std::vector<std::string> m_EnemyStandbyImages;
     std::vector<std::string> m_EnemyPushedImages;
-    std::vector<std::shared_ptr<Goal>> m_goals;
-    std::vector<std::string> m_GoalImages;
+    std::shared_ptr<AnimatedCharacter> m_goals;
+    std::vector<std::string> m_GoalImages1;
+    std::vector<std::string> m_GoalImages2;
+    std::vector<std::string> m_GoalImages3;
+    std::vector<std::string> m_GoalImages4;
+    std::vector<std::string> m_GoalImages5;
+    std::vector<std::string> m_GoalImages6;
+    std::vector<std::string> m_GoalImages7;
+    std::vector<std::string> m_GoalImages8;
+    std::vector<std::string> m_GoalImages9;
+
     std::shared_ptr<AnimatedCharacter> m_Reload;
     std::vector<std::string> m_ReloadImages;
     std::shared_ptr<Key> m_Key;
@@ -113,6 +110,7 @@ private:
     void TryMoveHero(const glm::vec2& direction);
     void TriggerLevelComplete();
     bool TryUnlockLockedBlockAt(const glm::vec2& position);
+    bool IsLockedBlockAt(const glm::vec2& position);
     bool IsWalkable(const glm::vec2& position);
     bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);
     bool IsEnemyAtPosition(const glm::vec2& position, std::shared_ptr<Enemy>& outEnemy);
