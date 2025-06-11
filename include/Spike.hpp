@@ -22,6 +22,7 @@ public:
 
     void OnStep();
     bool IsActive() const;
+    void SetNotActive();
     void SetAlwaysActive(bool active);
 
 private:

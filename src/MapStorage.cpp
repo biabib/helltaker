@@ -31,16 +31,3 @@ std::vector<std::vector<int>> MapStorage::LoadMap(const std::string& filePath) {
     file.close();
     return map;
 }
-
-std::vector<std::vector<std::vector<int>>> MapStorage::LoadAllMaps(const std::string& folderPath) {
-    std::vector<std::vector<std::vector<int>>> maps;
-    for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
-        if (entry.is_regular_file()) {
-            auto map = LoadMap(entry.path().string());
-            if (!map.empty()) {
-                maps.push_back(map);
-            }
-        }
-    }
-    return maps;
-}

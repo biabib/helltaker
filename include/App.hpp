@@ -5,6 +5,7 @@
 
 
 #include "Util/Renderer.hpp"
+#include "Util/SFX.hpp"
 #include "Character.hpp"
 #include "Map.hpp"
 #include "Enemy.hpp"
@@ -28,6 +29,20 @@ public:
         UPDATE,
         END,
     };
+
+    const char* tranfer(Phase p) {
+        switch (p) {
+            case Phase::None: return "0";
+            case Phase::Quest1: return "1";
+            case Phase::Quest2: return "2";
+            case Phase::Quest3: return "3";
+            case Phase::Quest4: return "4";
+            case Phase::Quest5: return "5";
+            case Phase::Quest6: return "6";
+            default: return "null";
+        }
+    }
+
     State GetCurrentState() const { return m_CurrentState; }
 
     void Start();
@@ -42,15 +57,14 @@ public:
     std::vector<std::vector<std::shared_ptr<Map>>>& GetGrid() { return m_grid; }
     std::vector<std::shared_ptr<LockedBlock>>& GetLockedBlocks() { return m_LockedBlocks; }
 
-private:
-    void ValidTask();
+
 
 private:
 
 
 
     State m_CurrentState = State::START;
-    Phase m_Phase = Phase::Quest1;
+    int m_Phase = 1;
 
     Util::Renderer m_Root;
 
@@ -79,13 +93,25 @@ private:
     std::vector<std::string> m_SpikeUpImages;
     std::vector<std::string> m_SpikeDownImages;
 
-    int m_Steps = 30;
+
+    std::vector<int> m_StepRow;
+    std::shared_ptr<TaskText> m_StepText;
+    std::shared_ptr<TaskText> m_PhaseText;
+
+    std::shared_ptr<Util::SFX> m_SFX;
+
+    int m_Steps = 0;
+
+    int beMinus = 0;
 
     bool m_EnterDown = false;
     bool isReloading = false;
     bool m_HasKey = false;
+    bool adjacent = false;
+    void ValidTask();
     void LoadMapFromData();
     void TryMoveHero(const glm::vec2& direction);
+    void TriggerLevelComplete();
     bool TryUnlockLockedBlockAt(const glm::vec2& position);
     bool IsWalkable(const glm::vec2& position);
     bool IsBoxAtPosition(const glm::vec2& position, std::shared_ptr<Box>& outBox);

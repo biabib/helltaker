@@ -11,7 +11,6 @@
 class MapStorage {
 public:
     static std::vector<std::vector<int>> LoadMap(const std::string& filePath);
-    static std::vector<std::vector<std::vector<int>>> LoadAllMaps(const std::string& folderPath);
 };
 
 #endif //HELLTAKER_MAPSTORAGE_HPP

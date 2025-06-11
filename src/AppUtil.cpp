@@ -11,6 +11,7 @@
  */
 
 
+
 void App::ValidTask() {
     LOG_DEBUG("Validating the task {}", static_cast<int>(m_PRM->GetCurrentPhase()));
 
@@ -23,9 +24,6 @@ void App::ValidTask() {
     float dx = std::abs(heroPos.x - goalPos.x);
     float dy = std::abs(heroPos.y - goalPos.y);
 
-    bool adjacent =
-            (dx == tileSize && dy == 0.0f) ||
-            (dy == tileSize && dx == 0.0f);
 
     if (!adjacent) return;
 
@@ -39,7 +37,7 @@ void App::ValidTask() {
 
     // 換階段
     m_PRM->NextPhase();
-    Phase newPhase = m_PRM->GetCurrentPhase();
+    int newPhase = m_PRM->GetCurrentPhase();
 
     // 判斷新地圖檔案是否存在
     std::string mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(newPhase)) + ".txt";

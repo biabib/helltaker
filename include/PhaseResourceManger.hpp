@@ -10,18 +10,13 @@ class PhaseResourceManger {
 public:
     PhaseResourceManger();
 
-    [[nodiscard]] std::vector<std::shared_ptr<Util::GameObject>> GetChildren() const {
-        return {m_TaskText, m_TaskText2};
-    }
 
     void NextPhase();
-    [[nodiscard]] Phase GetCurrentPhase() const { return m_Phase; }
+    int GetCurrentPhase() const { return m_Phase; }
+
 
 private:
-    std::shared_ptr<TaskText> m_TaskText;
-    std::shared_ptr<TaskText> m_TaskText2;
-
-    Phase m_Phase = Phase::Quest1;
+    int m_Phase = 1;
 };
 
 

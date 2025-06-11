@@ -8,7 +8,7 @@ void App::Update() {
         m_CurrentState = State::END;
     }
 
-    if (Util::Input::IsKeyPressed(Util::Keycode::R)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::R) || m_Steps <= 0) {
         m_Root = Util::Renderer();  // 重建畫面根節點
         m_grid.clear();
         m_boxes.clear();
@@ -17,7 +17,7 @@ void App::Update() {
         m_LockedBlocks.clear();
         m_HasKey = false;
 
-        Phase currentPhase = m_PRM->GetCurrentPhase();
+        int currentPhase = m_PRM->GetCurrentPhase();
         std::string mapPath = HT_RESOURCE_DIR "/Maps/map" + std::to_string(static_cast<int>(currentPhase)) + ".txt";
 
         if (std::filesystem::exists(mapPath)) {
@@ -26,6 +26,10 @@ void App::Update() {
         }
         m_Root.AddChild(m_StepUI);
         m_Root.AddChild(m_LevelUI);
+        m_Steps = m_StepRow[static_cast<int>(m_PRM->GetCurrentPhase())-1];
+        m_StepText->SetText(std::to_string(m_Steps));
+        m_Root.AddChild(m_StepText);
+        m_Root.AddChild(m_PhaseText);
         m_Root.AddChild(m_Reload);  // 重新加入動畫物件
         m_Reload->SetCurrentFrame();
         m_Reload->SetLooping(false);
@@ -33,12 +37,19 @@ void App::Update() {
         m_Reload->Play();
         isReloading = true;
     }
+
+
     if(isReloading){
         if(m_Reload->IfAnimationEnds()) {
             m_Reload->SetVisible(false);
             isReloading = false;
             m_Root.RemoveChild(m_Reload);
         }
+    }
+
+    if (Util::Input::IsKeyDown(Util::Keycode::N)) {
+        adjacent = true;
+        TriggerLevelComplete();
     }
 
     if (Util::Input::IsKeyDown(Util::Keycode::UP) || Util::Input::IsKeyDown(Util::Keycode::W)) {
@@ -80,20 +91,12 @@ void App::Update() {
         float dx = std::abs(heroPos.x - goalPos.x);
         float dy = std::abs(heroPos.y - goalPos.y);
 
-        bool adjacent =
+        adjacent =
                 (std::abs(dx - tileSize) < epsilon && dy < epsilon) ||
                 (std::abs(dy - tileSize) < epsilon && dx < epsilon);
 
         if (adjacent) {
-            ValidTask();
-            m_Root.AddChild(m_StepUI);
-            m_Root.AddChild(m_LevelUI);
-            m_Root.AddChild(m_Reload);  // 重新加入動畫物件
-            m_Reload->SetCurrentFrame();
-            m_Reload->SetLooping(false);
-            m_Reload->SetVisible(true);
-            m_Reload->Play();
-            isReloading = true;
+            TriggerLevelComplete();
         }
     }
     for (auto it = m_enemies.begin(); it != m_enemies.end(); ) {
@@ -109,7 +112,7 @@ void App::Update() {
         ++it;
         nextEnemy:;
     }
-
+    m_StepText->SetText(std::to_string(m_Steps));
     m_Root.Update();
 
 }
@@ -193,6 +196,15 @@ void App::TryMoveHero(const glm::vec2 &direction) {
     else if (direction.x > 0) m_Hero->m_Transform.scale.x = 1.0f;
 
     m_Steps-=1;
+//    m_StepText->SetText(std::to_string(m_Steps));
+
+//    for (const auto& spike : m_Spikes) {
+//        if ((spike->GetPosition() == direction || spike->GetPosition() == m_Hero->GetPosition()) && spike->IsActive()) {
+//            m_Steps--;  // 或觸發死亡、重置等處理
+//
+//            LOG_DEBUG("Hero stepped on active spike!");
+//        }
+//    }
 
     for (auto& spike : m_Spikes) {
         spike->OnStep(); // 切換狀態（如果是 Toggle）
@@ -247,10 +259,13 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         return;
     }
 
+
+
     // 一般移動
     if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
         if (!TryUnlockLockedBlockAt(heroNewPos)) {
             m_Steps++;
+//            m_StepText->SetText(std::to_string(m_Steps));
             return; // 有鎖但沒鑰匙，不能走
         }
 
@@ -259,17 +274,24 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         bool isPushingEnemy = false;
         bool canPush = true;
         m_Hero->Move((int) direction.x, (int) direction.y, 16, 9);
-        return;
-    }
-
-
-
-    for (const auto& spike : m_Spikes) {
-        if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
-            m_Steps--;  // 或觸發死亡、重置等處理
-            LOG_DEBUG("Hero stepped on active spike!");
+        for (const auto& spike : m_Spikes) {
+            if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
+//                m_Steps--;
+                beMinus = 2;
+                LOG_DEBUG("Hero stepped on active spike!");
+            }
         }
+        if(beMinus>0){
+            m_Steps--;
+            beMinus--;
+        }
+        return;
+
     }
+
+
+
+
 }
 bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
     for (auto it = m_LockedBlocks.begin(); it != m_LockedBlocks.end(); ++it) {
@@ -286,4 +308,21 @@ bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
         }
     }
     return true; // 沒鎖，可以通過
+}
+
+void App::TriggerLevelComplete() {
+    ValidTask();
+    m_Root.AddChild(m_StepUI);
+    m_Root.AddChild(m_LevelUI);
+    m_Steps = m_StepRow[static_cast<int>(m_PRM->GetCurrentPhase())-1];
+    m_StepText->SetText(std::to_string(m_Steps));
+    m_Root.AddChild(m_StepText);
+    m_PhaseText->SetText(std::to_string(m_PRM->GetCurrentPhase()));
+    m_Root.AddChild(m_PhaseText);
+    m_Root.AddChild(m_Reload);
+    m_Reload->SetCurrentFrame();
+    m_Reload->SetLooping(false);
+    m_Reload->SetVisible(true);
+    m_Reload->Play();
+    isReloading = true;
 }

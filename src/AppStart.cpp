@@ -9,6 +9,10 @@
 void App::Start() {
     LOG_TRACE("Start");
 
+    m_SFX = std::make_shared<Util::SFX>(HT_RESOURCE_DIR"/Audio/Vitality.wav");
+    m_SFX->SetVolume(50);
+    m_SFX->Play(9999, -1);
+
     m_grid.clear();
     m_HeroStandbyImages.clear();
     m_HeroMoveImages.clear();
@@ -48,8 +52,9 @@ void App::Start() {
         m_SpikeDownImages.emplace_back(HT_RESOURCE_DIR "/Image/Spike/spike" + std::to_string(i) + ".png");
     }
 
+    m_PRM = std::make_shared<PhaseResourceManger>();
 
-    if (m_Phase == Phase::Quest1)
+    if (m_PRM->GetCurrentPhase() == 1 )
         m_mapData = MapStorage::LoadMap(HT_RESOURCE_DIR "/Maps/map1.txt");
 
     m_Hero = std::make_shared<AnimatedCharacter>(m_HeroStandbyImages);
@@ -69,10 +74,36 @@ void App::Start() {
     m_Root.AddChild(m_StepUI);
     m_Root.AddChild(m_LevelUI);
 
-    m_PRM = std::make_shared<PhaseResourceManger>();
-    m_Root.AddChildren(m_PRM->GetChildren());
+
+    std::ifstream file(HT_RESOURCE_DIR "/Maps/StepOfMap.txt");
+
+    std::string line;
+    while (std::getline(file, line)) {
+        int stepValue;
+            std::stringstream ss(line);
+            ss>>stepValue;
+        m_StepRow.push_back(stepValue);
+
+    }
+    m_Steps = m_StepRow[m_PRM->GetCurrentPhase()-1];
+    m_StepText = std::make_shared<TaskText>();
+    m_StepText->SetPosition({-675.0f, -275.0f});
+    m_StepText->SetText(std::to_string(m_Steps));
+    m_StepText->SetZIndex(30);
+    m_Root.AddChild(m_StepText);
+
+    m_PhaseText = std::make_shared<TaskText>();
+    m_PhaseText->SetPosition({700.0f, -275.0f});
+    m_PhaseText->SetText(std::to_string(m_Phase));
+    m_PhaseText->SetZIndex(30);
+    m_Root.AddChild(m_PhaseText);
+
+
+
 
     m_CurrentState = State::UPDATE;
+
+
 
     m_Reload = std::make_shared<AnimatedCharacter>(m_ReloadImages);
     m_Reload->SetPosition({0.0f , 0.0f});
@@ -82,6 +113,9 @@ void App::Start() {
     m_Reload->Pause();            // 停止播放
     m_Root.AddChild(m_Reload);
     isReloading = false;          // 不進入播放流程
+
+
+
 }
 
 void App::LoadMapFromData() {
@@ -167,11 +201,26 @@ void App::LoadMapFromData() {
                     spike->SetPosition({worldX, worldY});
                     spike->SetZIndex(4);
                     spike->SetLooping(false);
+                    spike->SetNotActive();
                     m_Spikes.push_back(spike);
                     m_Root.AddChild(spike);
                     break;
                 }
-                case 10: { // 代表 Static Spike（始終為上升）
+                case 10: {
+                    auto spike = std::make_shared<Spike>(
+                            m_SpikeUpImages,
+                            m_SpikeDownImages,
+                            SpikeType::Toggle,
+                            1  // 每 2 步切換一次狀態
+                    );
+                    spike->SetPosition({worldX, worldY});
+                    spike->SetZIndex(4);
+                    spike->SetLooping(false);
+                    m_Spikes.push_back(spike);
+                    m_Root.AddChild(spike);
+                    break;
+                }
+                case 11: { // 代表 Static Spike（始終為上升）
                     auto spike = std::make_shared<Spike>(
                             m_SpikeUpImages,
                             m_SpikeDownImages,

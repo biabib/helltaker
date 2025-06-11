@@ -13,8 +13,8 @@
 
 class TaskText : public Util::GameObject {
 public:
-    TaskText() : GameObject(std::make_unique<Util::Text>(HT_RESOURCE_DIR"/Font/Inkfree.ttf", 20,
-                                                         "123",
+    TaskText() : GameObject(std::make_unique<Util::Text>(HT_RESOURCE_DIR"/Font/CrimsonPro-Medium.ttf", 70,
+                                                         "m_InputText",
                                                          Util::Color::FromName(Util::Colors::WHITE)), 100) {
 
     }
@@ -24,38 +24,13 @@ public:
     }
 
     void SetText(const std::string& text) {
-        m_InputText = text;
         auto temp = std::dynamic_pointer_cast<Util::Text>(m_Drawable);
-        if (temp) {
-            temp->SetText(m_InputText);
-        }
+        temp->SetText(text);
     }
 
-    void NextPhase(const int phase) {
-        std::string taskText = LoadTaskFromLine(HT_RESOURCE_DIR "/Map/StepOfMap.txt", phase);
-        SetText(taskText);
-    }
 
 private:
-    std::string LoadTaskFromLine(const std::string& filepath, int lineNumber) {
-        std::ifstream file(filepath);
-        if (!file.is_open()) {
-            return "無法開啟任務檔案";
-        }
-
-        std::string line;
-        int currentLine = 0;
-        while (std::getline(file, line)) {
-            if (currentLine == lineNumber) {
-                return line;
-            }
-            ++currentLine;
-        }
-
-        return "任務資料不存在";
-    }
-
-    std::string m_InputText = "123";
+    std::string m_InputText;
 };
 
 #endif //TASKTEXT_HPP

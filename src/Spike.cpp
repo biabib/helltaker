@@ -32,6 +32,11 @@ bool Spike::IsActive() const {
     return m_IsActive;
 }
 
+void Spike::SetNotActive() {
+    m_IsActive = false;
+    UpdateAnimation();
+}
+
 void Spike::SetAlwaysActive(bool active) {
     m_IsActive = active;
     UpdateAnimation();
