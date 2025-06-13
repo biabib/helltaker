@@ -225,7 +225,6 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         for (const auto& spike : m_Spikes) {
             if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
                 m_Steps -= 1;
-                LOG_DEBUG("Hero kicked enemy on active spike! Extra step deducted.");
                 break;
             }
         }
@@ -259,7 +258,6 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         for (const auto& spike : m_Spikes) {
             if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
                 m_Steps -= 1;
-                LOG_DEBUG("Hero kicked enemy on active spike! Extra step deducted.");
                 break;
             }
         }
@@ -270,7 +268,7 @@ void App::TryMoveHero(const glm::vec2 &direction) {
 
 
     // 一般移動
-    if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos)) {
+    if (IsWalkable(heroNewPos) && !IsGoalAtPosition(heroNewPos) && m_Steps >= 0) {
         if (!TryUnlockLockedBlockAt(heroNewPos)) {
             m_Steps++;
             return; // 有鎖但沒鑰匙，不能走
@@ -284,7 +282,6 @@ void App::TryMoveHero(const glm::vec2 &direction) {
         for (const auto& spike : m_Spikes) {
             if (spike->GetPosition() == m_Hero->GetPosition() && spike->IsActive()) {
                 m_Steps -= 1;
-                LOG_DEBUG("Hero stepped on active spike!");
             }
         }
 
@@ -311,7 +308,6 @@ bool App::TryUnlockLockedBlockAt(const glm::vec2& position) {
                 m_Root.RemoveChild(*it);
                 m_LockedBlocks.erase(it);
                 m_HasKey = false; //  鑰匙為一次性
-                LOG_DEBUG("Unlocked LockedBlock at ({}, {})", position.x, position.y);
                 return true;
             } else {
                 return false;

@@ -9,8 +9,6 @@
 #include "Character.hpp"
 #include "Map.hpp"
 #include "Enemy.hpp"
-#include "Goal.hpp"
-#include "Hero.hpp"
 #include "Util/Text.hpp"
 #include "PhaseResourceManger.hpp"
 #include "AnimatedCharacter.hpp"

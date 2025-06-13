@@ -57,10 +57,6 @@ public:
 
     void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 
-    // TODO: Implement the collision detection
-
-
-    // TODO: Add and implement more methods and properties as needed to finish Giraffe Adventure.
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
